@@ -6,7 +6,7 @@ You need:
 * To connect a POD you need a FluCom HAT board. KiCad files are in folder: kicad
 
 ### Get FlukeEmuWx source files
-* Download sources from: github...
+* Download sources from: https://github.com/novintic/FlukeEmu-FluCom
 * Create path: FlukeEmuWx
 * Copy source files to path FlukeEmuWx
 
