@@ -1,37 +1,19 @@
 # FlukeEmu-FluCom
-HW/SW solution for Fluke 9010 mainframe emulation
+A HW/SW solution for Fluke 9010 mainframe emulation
 
-## Instructions for setting up FlukeEmuWx by Clemens (Novintic)
-You need:
-* A Raspberry PI 2, 3 or 4 with Raspi OS installed
-* Codeblocks IDE (if not installed, use add/remove software)
-* Fluke 9010A ROMs 
-* To connect a POD you need a FluCom HAT board. KiCad files are in folder: kicad
+The Idea is to use a Raspberry Pi to run a Fluke 9010a emulator in software and interface with the hardware (pods) by means
+of an add on board/hat (basically to shift the levels and provide power to the pod). So far we have progressed from a proof
+of concept to a pretty solid and stable emulation.
 
-### Get FlukeEmuWx source files
-* Download sources from: github...
-* Create path: FlukeEmuWx
-* Copy source files to path FlukeEmuWx
+The advantages of using an approach like this are many, amongst them:
+* cheap Fluke 9010a mainframe replacement using modern technology and thereby adding stuff like network capability, wireless LAN, remote access/VNC, bluetooth etc ‚for free‘
+* the interface board can supply all the power rails to the pod so only one 12V wall adapter is needed to power the RaspberryPi and the pods
+* the whole setup is portable and compact, you could in theory put the whole thing inside your cabinet/UUT and comfortably use VNC to remote control the Fluke. You could also run the thing ‚headless‘ making it even smaller.
 
-### Install wxWidgets (Grab a few beers, takes 1-2h!)
-* Follow instructions: https://wiki.wxwidgets.org/Compiling_and_getting_started
+## Credits
+We would like to credit Adam from OneCircuit for coming up with the idea of a Fluke emulator and hardware combination
+(and of course for being the first to actually write one and make it available). However, as of now, the emulator shown
+here has been largely rewritten.
 
-### Install wiringPi (http://wiringpi.com/news/)
-* wget https://unicorn.drogon.net/wiringpi-2.46-1.deb
-* sudo dpkg -i wiringpi-2.46-1.deb
+## See also
 
-### Install pulseAudio
-* sudo apt-get install -y libpulse-dev
-
-### Install Z80 emulator source code by Marat Fayzullin. Note the license! This code
-is not for commercial use and you are not allowed to distribute it yourself.
-* Download Z80 Emulator : http://fms.komkon.org/EMUL8/Z80-081707.zip
-* Copy the source files into the project folder FlukeEmuWx/Z80
-
-### Install Fluke ROMs (we cannot supply these due to copyright)
-* Copy the 3 ROM files to FlukeEmuWx/media
-   * Files have to be named: 128C900.U9, 128C901.U19, 128C902.U21
-
-### Start Codeblocks IDE
-* Open project file: FlukeEmuWx/FlukeEmuWx.cbp
-* Build the project
