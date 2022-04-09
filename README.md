@@ -11,7 +11,7 @@ The advantages of using an approach like this are many, amongst them:
 * the whole setup is portable and compact, you could in theory put the whole thing inside your cabinet/UUT and comfortably use VNC to remote control the Fluke. You could also run the thing ‚headless‘ making it even smaller.
 
 ## Credits
-We would like to credit Adam from OneCircuit for coming up with the idea of a Fluke emulator and hardware combination
+We would like to credit Adam Courchesne (@onecircuit) for coming up with the idea of a Fluke emulator and hardware combination
 (and of course for being the first to actually write one and make it available). However, as of now, the emulator shown
 here has been largely rewritten.
 
