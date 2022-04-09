@@ -92,6 +92,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-ID:\Program\wxWidgets-3.1.5\include -ID:\Program\wxWidgets-3.1.5\lib\gcc_lib_wud\mswud" />
+			<Add option="-DEXECZ80" />
 			<Add option="-m64" />
 			<Add option="`wx-config --cxxflags`" />
 		</Compiler>
