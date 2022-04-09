@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="FlukeEmuWx" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<MakeCommands>
+			<Build command="" />
+			<CompileFile command="" />
+			<Clean command="" />
+			<DistClean command="" />
+			<AskRebuildNeeded command="" />
+			<SilentBuild command=" &gt; $(CMD_NULL)" />
+		</MakeCommands>
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/FlukeEmuWx" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="`wx-config --cxxflags`" />
+					<Add directory="include" />
+				</Compiler>
+				<ResourceCompiler>
+					<Add directory="D:/Program/wxWidgets-3.1.5/lib/gcc_dll/msw" />
+				</ResourceCompiler>
+				<Linker>
+					<Add library="libwxmsw31ud_core.a" />
+					<Add library="wxbase31ud" />
+					<Add library="wxbase31ud_net" />
+					<Add library="wxbase31ud_xml" />
+					<Add library="wxexpatd" />
+					<Add library="wxjpegd" />
+					<Add library="wxmsw31ud_adv" />
+					<Add library="wxmsw31ud_aui" />
+					<Add library="wxmsw31ud_gl" />
+					<Add library="wxmsw31ud_html" />
+					<Add library="wxmsw31ud_media" />
+					<Add library="wxmsw31ud_propgrid" />
+					<Add library="wxmsw31ud_ribbon" />
+					<Add library="wxmsw31ud_richtext" />
+					<Add library="wxmsw31ud_stc" />
+					<Add library="wxmsw31ud_webview" />
+					<Add library="wxmsw31ud_xrc" />
+					<Add library="wxpngd" />
+					<Add library="wxregexud" />
+					<Add library="wxscintillad" />
+					<Add library="wxtiffd" />
+					<Add library="wxzlibd" />
+					<Add library="comctl32" />
+					<Add library="ole32" />
+					<Add library="gdi32" />
+					<Add library="libuxtheme" />
+					<Add library="kernel32" />
+					<Add library="user32" />
+					<Add library="comdlg32" />
+					<Add library="winspool" />
+					<Add library="winmm" />
+					<Add library="rpcrt4" />
+					<Add library="advapi32" />
+					<Add library="wsock32" />
+					<Add library="wininet" />
+					<Add library="Shlwapi" />
+					<Add library="Version" />
+					<Add library="uuid" />
+					<Add library="liboleaut32" />
+					<Add library="oleacc" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/FlukeEmuWx" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option projectLinkerOptionsRelation="2" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add directory="include" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="libwxmsw31u_core.a" />
+					<Add library="libwxbase31u.a" />
+					<Add library="libwxpng.a" />
+					<Add library="libwxzlib.a" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-ID:\Program\wxWidgets-3.1.5\include -ID:\Program\wxWidgets-3.1.5\lib\gcc_lib_wud\mswud" />
+			<Add option="-m64" />
+			<Add option="`wx-config --cxxflags`" />
+		</Compiler>
+		<Linker>
+			<Add option="-LD:\Program\wxWidgets-3.1.5\lib\gcc_lib_wud" />
+			<Add option="-m64" />
+			<Add option="`wx-config --libs`" />
+		</Linker>
+		<Unit filename="EmuDispKeyb.cpp" />
+		<Unit filename="EmuDispKeyb.h" />
+		<Unit filename="EmuEvCntSigGen.cpp" />
+		<Unit filename="EmuEvCntSigGen.h" />
+		<Unit filename="EmuPanel.cpp" />
+		<Unit filename="EmuPanel.h" />
+		<Unit filename="EmuPanelDef.h" />
+		<Unit filename="EmuPodProbe.cpp" />
+		<Unit filename="EmuPodProbe.h" />
+		<Unit filename="EmuSerPort.cpp" />
+		<Unit filename="EmuSerPort.h" />
+		<Unit filename="EmuTapeUnit.cpp" />
+		<Unit filename="EmuTapeUnit.h" />
+		<Unit filename="FlukeEmuHw.cpp" />
+		<Unit filename="FlukeEmuHw.h" />
+		<Unit filename="FlukeEmuWxApp.cpp" />
+		<Unit filename="FlukeEmuWxApp.h" />
+		<Unit filename="FlukeEmuWxMain.cpp" />
+		<Unit filename="FlukeEmuWxMain.h" />
+		<Unit filename="Z80/Codes.h" />
+		<Unit filename="Z80/CodesCB.h" />
+		<Unit filename="Z80/CodesED.h" />
+		<Unit filename="Z80/CodesXCB.h" />
+		<Unit filename="Z80/CodesXX.h" />
+		<Unit filename="Z80/ConDebug.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Z80/Debug.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Z80/Tables.h" />
+		<Unit filename="Z80/Z80.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Z80/Z80.h" />
+		<Unit filename="resource.rc">
+			<Option compilerVar="WINDRES" />
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="wavdefs.h" />
+		<Unit filename="wxSndWrap.cpp" />
+		<Unit filename="wxSndWrap.h" />
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

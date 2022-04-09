@@ -1,0 +1,4 @@
+Z80 emulator source code by Marat Fayzullin. Note the license!
+This code is not for commercial use and we/you are not allowed to distribute it.
+* Download Z80 Emulator : http://fms.komkon.org/EMUL8/Z80-081707.zip
+* Copy the source files into the project folder FlukeEmuWx/Z80

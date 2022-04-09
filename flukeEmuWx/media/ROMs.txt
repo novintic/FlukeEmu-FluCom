@@ -1,0 +1,3 @@
+Fluke ROMs (we cannot supply these due to copyright)
+* Copy the 3 ROM files to FlukeEmuWx/media
+* Files have to be named: 128C900.U9, 128C901.U19, 128C902.U21

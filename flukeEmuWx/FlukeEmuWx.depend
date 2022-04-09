@@ -1,0 +1,156 @@
+# depslib dependency file v1.0
+1648916812 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emudispkeyb.cpp
+	"EmuDispKeyb.h"
+
+1648930674 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emudispkeyb.h
+	<stdint.h>
+	"wx/wx.h"
+
+1648916812 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emuevcntsiggen.cpp
+	"EmuEvCntSigGen.h"
+
+1648917040 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emuevcntsiggen.h
+	<stdint.h>
+	"wx/wx.h"
+
+1648930110 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emupanel.cpp
+	"wx/wx.h"
+	"wx/image.h"
+	<wx/sound.h>
+	<wx/display.h>
+	"FlukeEmuWxMain.h"
+	"EmuPanel.h"
+
+1648916812 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\flukeemuwxmain.h
+	<wx/wx.h>
+	"FlukeEmuWxApp.h"
+	"EmuPanel.h"
+
+1648916812 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\flukeemuwxapp.h
+	<wx/app.h>
+
+1648916811 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emupanel.h
+	<wx/sound.h>
+	<wx/filename.h>
+	"EmuPanelDef.h"
+	"FlukeEmuHw.h"
+	"wxSndWrap.h"
+	<wx/dcbuffer.h>
+
+1648916811 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emupaneldef.h
+
+1648917040 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\flukeemuhw.h
+	"stdint.h"
+	"Z80/Z80.h"
+	"EmuPodProbe.h"
+	"EmuTapeUnit.h"
+	"EmuDispKeyb.h"
+	"EmuEvCntSigGen.h"
+	"EmuSerPort.h"
+
+1643134715 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\z80\z80.h
+
+1648916812 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emupodprobe.h
+	<stdint.h>
+	<stdio.h>
+
+1648917040 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emutapeunit.h
+	<stdio.h>
+	<stdint.h>
+	"wx/wx.h"
+
+1648917040 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emuserport.h
+	<wx/wx.h>
+	<stdio.h>
+	<stdint.h>
+
+1648916811 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\wxsndwrap.h
+	<wx/wx.h>
+	<wx/sound.h>
+	<pulse/simple.h>
+	<pulse/error.h>
+	"wavdefs.h"
+
+1648917040 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\wavdefs.h
+	<stdint.h>
+
+1648930110 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emupodprobe.cpp
+	"EmuPodProbe.h"
+	"wx/wx.h"
+	"wiringPi.h"
+
+1648930110 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emuserport.cpp
+	"EmuSerPort.h"
+	<termios.h>
+	<sys/ioctl.h>
+
+1648917040 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\emutapeunit.cpp
+	"wx/wx.h"
+	"EmuTapeUnit.h"
+	<stdio.h>
+	<string.h>
+	<errno.h>
+
+1648930427 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\flukeemuhw.cpp
+	"FlukeEmuHw.h"
+	"wx/wx.h"
+
+1648930674 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\flukeemuwxapp.cpp
+	"wx_pch.h"
+	"FlukeEmuWxApp.h"
+	"FlukeEmuWxMain.h"
+
+1648930674 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\flukeemuwxmain.cpp
+	"wx_pch.h"
+	"FlukeEmuWxMain.h"
+	"EmuPanel.h"
+
+1648916811 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\wxsndwrap.cpp
+	"wxSndWrap.h"
+
+1171641022 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\z80\condebug.c
+	"Debug.c"
+	"Z80.h"
+	"Console.h"
+	<stdlib.h>
+	"Debug.c"
+
+1168277520 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\z80\debug.c
+	"Z80.h"
+	<stdio.h>
+	<ctype.h>
+	<string.h>
+	"AY8910.h"
+
+1168277520 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\z80\debug.c
+	"Z80.h"
+	<stdio.h>
+	<ctype.h>
+	<string.h>
+	"AY8910.h"
+
+1643326557 source:c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\z80\z80.c
+	"Z80.h"
+	"Tables.h"
+	<stdio.h>
+	"CodesCB.h"
+	"CodesXCB.h"
+	"CodesXCB.h"
+	"CodesED.h"
+	"CodesXX.h"
+	"CodesXX.h"
+	"Codes.h"
+	"Codes.h"
+
+1168277524 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\z80\tables.h
+
+1168277500 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\z80\codescb.h
+
+1168277506 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\z80\codesxcb.h
+
+1183565066 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\z80\codesed.h
+
+1179820862 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\z80\codesxx.h
+
+1179820772 c:\users\clemens\projects\dev\flukeemuwx\github\flukeemuwx\z80\codes.h
+
