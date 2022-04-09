@@ -1,4 +1,5 @@
-The FluCom Interface is a stack-on board (HAT) for a Raspberry Pi 3 or higher. It’s purpose is to interface with Pods for the Fluke 9000 series Microsystem Troubleshooter which is still used today to diagnose and repair vintage computer equipment such as arcade game pcbs.
+# FluCom2
+The FluCom2 Interface is a stack-on board (HAT) for a Raspberry Pi 3 or higher. It’s purpose is to interface with Pods for the Fluke 9000 series Microsystem Troubleshooter which is still used today to diagnose and repair vintage computer equipment such as arcade game pcbs.
 
 It is designed to be used in conjunction with the FlukeEmu software.
 
