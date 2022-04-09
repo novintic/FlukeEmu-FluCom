@@ -12,8 +12,7 @@ The advantages of using an approach like this are many, amongst them:
 
 ## Credits
 We would like to credit Adam Courchesne (@onecircuit) for coming up with the idea of a Fluke emulator and hardware combination
-(and of course for being the first to actually write one and make it available). However, as of now, the emulator shown
-here has been largely rewritten.
+and of course for being the first one to actually write one and make it available.
 
 ## See also
-
+https://forums.arcade-museum.com/threads/flukeemu-flucom-fluke-9010a-microsystem-troubleshooter-emulator.503305/ 
