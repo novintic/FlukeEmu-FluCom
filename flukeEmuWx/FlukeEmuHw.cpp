@@ -117,7 +117,7 @@ void flukeEmuHw::execCtrl(int cmd)
 // Start, pause, reset, end emulation thread
 void flukeEmuHw::dispStats(void)
 {
-    wxLogDebug("EMU: avg:%.1f max: %.1f ms runs: %d - %d", m_avgEmuTime, m_maxEmuTime, m_cntEmuRuns, m_cntEmuRuns - m_cntEmuRunsLast);
+    //wxLogDebug("EMU: avg:%.1f max: %.1f ms runs: %d - %d", m_avgEmuTime, m_maxEmuTime, m_cntEmuRuns, m_cntEmuRuns - m_cntEmuRunsLast);
     m_cntEmuRunsLast = m_cntEmuRuns;
 }
 

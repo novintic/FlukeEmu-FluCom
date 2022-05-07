@@ -51,7 +51,11 @@ class EmuPanel: public wxWindow
         wxRect GetDispPanelRect(void) { return m_dispPanelRect; };
         void OnKeyEvent(wxKeyEvent& event);
 
-        void ShowFileDialog(void);
+        void TapeFileDialog(void);
+        void SerPortDialog(void);
+        void SerInFileDialog(void);
+        void SerOutFileDialog(void);
+        void updateSerialStatus(void);
 
         int setSerialPort(wxString pname, int speed)
         { return m_emuHw.m_serPort.setSerPort(pname, speed); };
@@ -128,6 +132,11 @@ class EmuPanel: public wxWindow
     wxFileName  m_tapeFileName;
     wxString    m_tapeFileDispName;
     bool        m_tapeFileSet;
+
+    // Serial port file
+    wxString    m_serPortDispName;
+    wxString    m_serInFileDispName;
+    wxString    m_serOutFileDispName;
 
     wxSndWrap   m_snd;
 

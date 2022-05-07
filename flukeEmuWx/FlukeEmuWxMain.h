@@ -40,13 +40,19 @@ class FlukeEmuWxFrame: public wxFrame
             idMenuFullScreen,
             idMenuTapeFile,
             idMenuSerialPort,
+            idMenuSerialPortOpts,
+            idMenuSerialPortInFile,
+            idMenuSerialPortOutFile
         };
         void OnClose(wxCloseEvent& event);
         void OnQuit(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
         void OnFullScreen(wxCommandEvent &event);
+        void OnMenuTapeFile(wxCommandEvent& event);
         void OnMouseEvent(wxMouseEvent& event);
-        void OnMenuSerPort(wxCommandEvent& event);
+        void OnMenuSerPortOptions(wxCommandEvent& event);
+        void OnMenuSerPortInFile(wxCommandEvent& event);
+        void OnMenuSerPortOutFile(wxCommandEvent& event);
         DECLARE_EVENT_TABLE()
 };
 

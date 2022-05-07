@@ -89,7 +89,10 @@ BEGIN_EVENT_TABLE(FlukeEmuWxFrame, wxFrame)
     EVT_MENU(idMenuQuit, FlukeEmuWxFrame::OnQuit)
     EVT_MENU(idMenuAbout, FlukeEmuWxFrame::OnAbout)
     EVT_MENU(idMenuFullScreen, FlukeEmuWxFrame::OnFullScreen)
-    EVT_MENU(idMenuSerialPort, FlukeEmuWxFrame::OnMenuSerPort)
+    EVT_MENU(idMenuTapeFile, FlukeEmuWxFrame::OnMenuTapeFile)
+    EVT_MENU(idMenuSerialPortOpts, FlukeEmuWxFrame::OnMenuSerPortOptions)
+    EVT_MENU(idMenuSerialPortInFile, FlukeEmuWxFrame::OnMenuSerPortInFile)
+    EVT_MENU(idMenuSerialPortOutFile, FlukeEmuWxFrame::OnMenuSerPortOutFile)
     EVT_MOUSE_EVENTS(FlukeEmuWxFrame::OnMouseEvent)
 END_EVENT_TABLE()
 
@@ -102,11 +105,19 @@ FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title)
     wxMenu* fileMenu = new wxMenu(_T(""));
     fileMenu->Append(idMenuQuit, _("&Quit\tAlt-F4"), _("Quit FlukeEmuWx"));
     mbar->Append(fileMenu, _("&File"));
-    // View menu
+    // Settings menu
     wxMenu* settingsMenu = new wxMenu(_T(""));
-    settingsMenu->Append(idMenuFullScreen, _("&Fullscreen\tF5"), _("Fullscreen"));
-    //settingsMenu->Append(idMenuTapeFile, _("&Tape File"), _("Tape File"));
-    settingsMenu->Append(idMenuSerialPort, _("&Serial Port"), _("Serial Port"));
+    settingsMenu->Append(idMenuFullScreen, _("&Fullscreen\tF5"), _("Switch to fullscreen"));
+    settingsMenu->Append(idMenuTapeFile, _("&Tape file"), _("Set tape file"));
+    // serial port menu
+    wxMenu* serPortMenu = new wxMenu(_T(""));
+    serPortMenu->Append(idMenuSerialPortOpts, _("&Serial port"), _("Serial port settings"));
+    serPortMenu->Append(idMenuSerialPortInFile, _("&Send file"), _("Send file to emulator"));
+    serPortMenu->Append(idMenuSerialPortOutFile, _("&Receive file"), _("Receive file from emulator"));
+    // attach popup menu
+    settingsMenu->Append(idMenuSerialPort, _("&Serial port"), serPortMenu, _("Serial port options"));
+    //settingsMenu->Append(idMenuSerialPort, _("&Serial Port"), _("Serial Port"));
+
     mbar->Append(settingsMenu, _("&Settings"));
     // Help menu
     wxMenu* helpMenu = new wxMenu(_T(""));
@@ -115,7 +126,7 @@ FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title)
 
     SetMenuBar(mbar);
 
-    m_portName = "/dev/ttyUSB0";
+    m_portName = "/dev/serial0";
     m_tapeFile = "";
 
     // create a status bar with some information about the used wxWidgets version
@@ -143,15 +154,22 @@ void FlukeEmuWxFrame::OnFullScreen(wxCommandEvent &event)
     ShowFullScreen(m_fullScreen, wxFULLSCREEN_ALL);
 }
 
-void FlukeEmuWxFrame::OnMenuSerPort(wxCommandEvent& event)
+void FlukeEmuWxFrame::OnMenuTapeFile(wxCommandEvent& event)
+{
+    m_Emu->TapeFileDialog();
+}
+
+void FlukeEmuWxFrame::OnMenuSerPortOptions(wxCommandEvent& event)
 {
     wxLogDebug("Menu: SerPort");
+    m_Emu->SerPortDialog();
+/*
     wxString pName = wxGetTextFromUser(wxString("Port Name"), wxString("Serial Port"), m_portName);
     //wxLogDebug("SerPort: %s", pName);
 
     if(m_Emu->setSerialPort(pName, 9600) != 0)
     {
-        SetStatusText(_("Serial port: ") + (pName == "" ? "<none>" : pName) + "[8N1 9600]", 1);
+        SetStatusText(_("Serial port: ") + (pName == "" ? "<none>" : pName) + " [8N1 9600]", 1);
         m_portName = pName;
     }
     else
@@ -160,7 +178,19 @@ void FlukeEmuWxFrame::OnMenuSerPort(wxCommandEvent& event)
         SetStatusText(_("Serial port: ") + "<none>", 1);
         m_portName = "";
     }
+*/
+}
 
+void FlukeEmuWxFrame::OnMenuSerPortInFile(wxCommandEvent& event)
+{
+    wxLogDebug("Menu: Ser In File");
+    m_Emu->SerInFileDialog();
+}
+
+void FlukeEmuWxFrame::OnMenuSerPortOutFile(wxCommandEvent& event)
+{
+    wxLogDebug("Menu: Ser Out File");
+    m_Emu->SerOutFileDialog();
 }
 
 void FlukeEmuWxFrame::OnMouseEvent(wxMouseEvent& event)

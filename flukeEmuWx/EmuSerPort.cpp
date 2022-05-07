@@ -26,22 +26,36 @@ emuSerPort::emuSerPort(void)
     m_baudRate  = 9600;
     m_portOpen  = false;
     m_fhPort    = 0;
+
+    m_inFileName  = "";
+    m_outFileName = "";
+    m_fhInFile    = NULL;
+    m_fhOutFile   = NULL;
+    m_inFileOpen  = false;
+    m_outFileOpen = false;
+    m_serMode     = SER_MODE_PORT;
+
     Reset();
 }
 
 void emuSerPort::Reset(void)
 {
     // Fluke will report no aux if port not open
-    m_status = 0x00 | (m_portOpen ? SER_TX_EMPTY : 0);
+    //m_status = 0x00 | (m_portOpen ? SER_TX_EMPTY : 0);
+
+    m_status = 0x00 | SER_TX_EMPTY;
 }
 
 void emuSerPort::Write(uint16_t addr, uint8_t data)
 {
     if (addr == 0x00E3)
     {   // Send data
-        wxLogDebug("SERPORT: TX %02x", data);
-        // Write to port
-        int ok = writeSerPort(&data, 1);
+        wxLogDebug("SERPORT: TX %02x : %s", data, m_serMode == SER_MODE_PORT ? "PORT":"FILE");
+        int ok;
+        if(m_serMode == SER_MODE_PORT)
+            ok = writeSerPort(&data, 1); // Write to port
+        else
+            ok = writeOutFile(&data, 1);// Write to file
         m_status |= SER_TX_EMPTY; // indicate byte sent
     }
     else
@@ -68,17 +82,27 @@ uint8_t emuSerPort::Read(uint16_t addr)
     }
     else if (addr == 0x00E2)
     {   // read status
-        val = m_status | (m_portOpen ? SER_TX_EMPTY : 0);
+        val = m_status | SER_TX_EMPTY;
         // Read the real port
         if((m_status & SER_DATA_RX) == 0)
         {
             uint8_t b;
-            int n = readSerPort(&b, 1);
+            int n;
+            if(m_serMode == SER_MODE_PORT)
+                n = readSerPort(&b, 1);
+            else
+                n = readInFile(&b, 1);
             if(n == 1)
             {
                 m_rxBuf[0] = b;
                 m_status |= SER_DATA_RX;
-                wxLogDebug("SERPORT: RX %02x", b);
+                wxLogDebug("SERPORT: RX %02x : %s", b, m_serMode == SER_MODE_PORT ? "PORT":"FILE");
+            }
+            else if(m_serMode == SER_MODE_FILE)
+            {   // File sent -> close
+                wxLogDebug("SERPORT: File sent!");
+                fclose(m_fhInFile);
+                m_inFileOpen = false;
             }
         }
     }
@@ -113,6 +137,7 @@ int emuSerPort::setSerPort(wxString pname, int speed)
             m_portName  = pname;
             m_baudRate  = speed;
             m_portOpen = true;
+            setMode(SER_MODE_PORT);
             ret = 1;
         }
     }
@@ -264,3 +289,114 @@ void set_blocking(int fd, int should_block)
                   fprintf(stdout, "error %d setting term attributes\n", errno);
 }
 #endif
+
+// Serial port file to mapping
+void emuSerPort::setMode(int newMode)
+{
+    if(newMode != m_serMode)
+    {
+        if(newMode == SER_MODE_PORT)
+        {
+            if(m_outFileOpen)
+            {
+                fclose(m_fhOutFile);
+                m_outFileOpen = false;
+            }
+            if(m_inFileOpen)
+            {
+                fclose(m_fhInFile);
+                m_inFileOpen = false;
+            }
+            m_serMode = SER_MODE_PORT;
+        }
+        else if(newMode == SER_MODE_FILE)
+        {
+            if(m_portOpen)
+            {   // close
+                closeSerPort();
+                m_portOpen = false;
+            }
+            m_serMode = SER_MODE_FILE;
+        }
+        else
+        {}
+    }
+}
+
+int emuSerPort::getMode(void)
+{
+    return m_serMode;
+}
+
+int emuSerPort::openInFile(wxString pname)
+{
+    int ret = 0;
+    if(m_inFileOpen)
+    {
+        fclose(m_fhInFile);
+        m_inFileOpen = false;
+    }
+
+    if(pname != "")
+    {
+        m_fhInFile = fopen (pname, "r");
+        if (m_fhInFile < 0)
+            wxLogDebug("m_fhInFile: error %d opening %s %s\n", errno, pname, strerror (errno));
+        else
+        {
+            ret = 1;
+            m_inFileOpen = true;
+            setMode(SER_MODE_FILE);
+        }
+    }
+	return ret;
+}
+
+int emuSerPort::openOutFile(wxString pname)
+{
+    int ret = 0;
+    if(m_outFileOpen)
+    {
+        fclose(m_fhOutFile);
+        m_outFileOpen = false;
+    }
+
+    if(pname != "")
+    {
+        m_fhOutFile = fopen (pname, "w");
+        if (m_fhOutFile < 0)
+            wxLogDebug("m_fhOutFile: error %d opening %s %s\n", errno, pname, strerror (errno));
+        else
+        {
+            ret = 1;
+            m_outFileOpen = true;
+            setMode(SER_MODE_FILE);
+        }
+    }
+	return ret;
+}
+
+int emuSerPort::readInFile(uint8_t* pdata, int maxNum)
+{
+    int ret = -1;
+    if(m_inFileOpen)
+    {
+        int n = fread(pdata, 1, maxNum, m_fhInFile);  // write data
+        //wxLogDebug("SERPORT: File read %d", n);
+        if(n > 0)
+            ret = 1;
+    }
+    return ret;
+}
+
+int emuSerPort::writeOutFile(uint8_t* pdata, int num)
+{
+    int ret = -1;
+    if(m_outFileOpen)
+    {
+        int n = fwrite(pdata, 1, num, m_fhOutFile);  // write data
+        if(n == num)
+            ret = 1;
+    }
+    return ret;
+}
