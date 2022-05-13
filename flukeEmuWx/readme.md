@@ -36,4 +36,4 @@ Note the license! This code is not for commercial use and you are not allowed to
 ### Run flukeEmuWx
 * Press the run button in codeblocks
 * In order to run flukeEmuWx standalone, you need to place the 'media' folder in the same folder as the executable
-   * The executable file 'flukeEmuWx' is in the bin/Release or bin/Debug folder, depending on which target was built
+   * The executable file 'FlukeEmuWx' is in the bin/Release or bin/Debug folder, depending on which target was built
