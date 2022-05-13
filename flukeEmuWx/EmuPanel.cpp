@@ -15,6 +15,8 @@ Boston, MA 02111-1307 USA
 
 // ********************************
 // Emulator window
+#include <dirent.h>
+#include <errno.h>
 
 #include "wx/wx.h"
 #include "wx/image.h"
@@ -46,11 +48,36 @@ wxEND_EVENT_TABLE()
 EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size)
          :wxWindow( parent, id, pos, size, wxSUNKEN_BORDER )
 {
+    // Check media path
+    DIR* mediaDir = opendir("media");
+    if(mediaDir)
+    {   // all ok, just close dir
+        closedir(mediaDir);
+    }
+    else if (ENOENT == errno)
+    {   // dir does not exists
+        wxMessageBox (wxString::Format("Media directory not found!\nThe folder 'media' must be in the same folder as\nthe flukeEmuWx executable!"), wxString("Media Folder missing"));
+        //throw std::domain_error("Media directory not found!");
+        exit(EXIT_FAILURE);
+    }
+    else
+    {   // error opening dir
+        wxMessageBox (wxString::Format("Media directory not accessible!\nDo you have the correct permissions?"), wxString("Media Folder"));
+        //throw std::domain_error("Media directory not accessible!");
+        exit(EXIT_FAILURE);
+    }
+
     // Load background bitmap
     if (m_bgndImage.LoadFile(F9010PANEL_BMP, wxBITMAP_TYPE_BMP))
     {
         wxLogDebug("BGND Image ok");
         m_bgndPanel = new wxBitmap(m_bgndImage);
+    }
+    else
+    {
+        wxMessageBox (wxString::Format("Panel image: %s not found!\nThe image must be in the folder 'media'!", F9010PANEL_BMP), wxString("Panel image missing"));
+        //throw std::domain_error("Panel image not found!");
+        exit(EXIT_FAILURE);
     }
 
     m_keyDown = false;
@@ -84,6 +111,12 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
     m_tapeFileName = "";
     m_tapeFileSet = false;
     m_tapeFont = new wxFont(wxFontInfo(15).Family(wxFONTFAMILY_MODERN).Bold());
+
+    // Serial port files
+    m_serPortDispName = "/dev/serial0";
+    m_serInFileDispName  = "";
+    m_serOutFileDispName = "";
+
 
     // Sounds
     m_snd.init();
@@ -176,6 +209,8 @@ void EmuPanel::OnRunEmu(wxTimerEvent& event)
         m_tapeFileSet = fset;
         Refresh(true, NULL); // TEST DO BETTER
     }
+    // update serial port/file status
+    updateSerialStatus();
 }
 
 wxSize EmuPanel::GetNativeSize()
@@ -381,7 +416,7 @@ void EmuPanel::OnMouseEvent(wxMouseEvent& event)
         {
             // Open cassette file dialog
             wxLogDebug("TAPE: insert cassette");
-            ShowFileDialog();
+            TapeFileDialog();
             Refresh(true, NULL); // TEST DO BETTER
             notConsumed = false;
         }
@@ -626,7 +661,7 @@ uint8_t EmuPanel::GetKey(int x, int y, wxRect* pKr)
 }
 
 
-void EmuPanel::ShowFileDialog(void)
+void EmuPanel::TapeFileDialog(void)
 {
     wxFileDialog openFileDialog(this, _("Open cassette file"), "", "DefaultName",
                    "Cassette files (*.txt)|*.*|All files|*.*", wxFD_OPEN);
@@ -648,5 +683,111 @@ void EmuPanel::ShowFileDialog(void)
     {   // remove cassette
         m_emuHw.m_tapeUnit.setTapeFileName("");
         ((FlukeEmuWxFrame*)GetParent())->GetStatusBar()->SetStatusText(_("Tape file: ") + "<none>", 0);
+    }
+}
+
+void EmuPanel::SerPortDialog(void)
+{
+    wxString pName = wxGetTextFromUser(wxString("Port Name"), wxString("Serial Port"), m_serPortDispName);
+
+    if(setSerialPort(pName, 9600) != 0)
+    {
+        //SetStatusText(_("Serial port: ") + (pName == "" ? "<none>" : pName) + " [8N1 9600]", 1);
+        m_serPortDispName = pName;
+    }
+    else
+    {
+        wxMessageBox (wxString::Format("Failed to open port: %s", pName), wxString("Serial Port"));
+        //SetStatusText(_("Serial port: ") + "<none>", 1);
+        m_serPortDispName = "";
+    }
+    updateSerialStatus(); // update serial status
+}
+
+void EmuPanel::SerInFileDialog(void)
+{
+    wxFileDialog openFileDialog(this, _("Open serial input file"), "", "DefaultName",
+                   "All files (*.txt)|*.*|All files|*.*", wxFD_OPEN);
+
+    int ret =  openFileDialog.ShowModal();
+    if (ret != wxID_CANCEL)
+    {
+        wxFileName fn = openFileDialog.GetPath();
+        //bool isWrite = fn.IsFileWritable();
+        //if(isWrite)
+        {
+            if(m_emuHw.m_serPort.openInFile(openFileDialog.GetPath()))
+            {
+                m_serInFileDispName = openFileDialog.GetPath();
+            }
+            else
+            {
+                m_serInFileDispName = "";
+                wxLogDebug("SER OUT FILE: opening failed!");
+            }
+        }
+        //else
+        //    wxLogDebug("SER OUT FILE: %s write protected", openFileDialog.GetFilename() );
+    }
+    else if (ret == wxID_CANCEL)
+    {   // close any open files
+        m_emuHw.m_serPort.openInFile("");
+    }
+    //updateSerialStatus(); // update serial status
+}
+
+void EmuPanel::SerOutFileDialog(void)
+{
+    wxFileDialog openFileDialog(this, _("Open serial output file"), "", "DefaultName",
+                   "All files (*.txt)|*.*|All files|*.*", wxFD_SAVE);
+
+    int ret =  openFileDialog.ShowModal();
+    if (ret != wxID_CANCEL)
+    {
+        wxFileName fn = openFileDialog.GetPath();
+        //bool isWrite = fn.IsFileWritable();
+        //if(isWrite)
+        {
+            if(m_emuHw.m_serPort.openOutFile(openFileDialog.GetPath()))
+            {
+                m_serOutFileDispName = openFileDialog.GetPath();
+            }
+            else
+            {
+                m_serOutFileDispName = "";
+                wxLogDebug("SER OUT FILE: opening failed!");
+            }
+        }
+        //else
+        //    wxLogDebug("SER OUT FILE: %s write protected", openFileDialog.GetFilename() );
+    }
+    else if (ret == wxID_CANCEL)
+    {   // close any open files
+        m_emuHw.m_serPort.openOutFile("");
+    }
+    //updateSerialStatus(); // update serial status
+}
+
+void EmuPanel::updateSerialStatus(void)
+{
+    int sm = m_emuHw.m_serPort.getMode();
+    if(sm & SER_UPD_FLAG)
+    {
+        wxString serStat;
+        if((sm & SER_MODE_MASK) == 0) // port mode?
+        {
+            if(sm & SER_PORT_OPEN)
+                serStat = wxString::Format("Serial port: %s : [8N1 9600]", m_serPortDispName);
+            else
+                serStat = wxString::Format("Serial port: <none>");
+        }
+        else
+        {
+            wxString istr = sm & SER_INFILE_OPEN ? m_serInFileDispName : "-";
+            wxString ostr = sm & SER_OUTFILE_OPEN ? m_serOutFileDispName : "-";
+            serStat = wxString::Format("Serial file: IN:%s / OUT: %s ", istr, ostr);
+        }
+        wxLogDebug("SERSTAT: %s", serStat);
+        ((FlukeEmuWxFrame*)GetParent())->GetStatusBar()->SetStatusText(serStat, 1);
     }
 }

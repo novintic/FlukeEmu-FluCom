@@ -117,7 +117,7 @@ void flukeEmuHw::execCtrl(int cmd)
 // Start, pause, reset, end emulation thread
 void flukeEmuHw::dispStats(void)
 {
-    wxLogDebug("EMU: avg:%.1f max: %.1f ms runs: %d - %d", m_avgEmuTime, m_maxEmuTime, m_cntEmuRuns, m_cntEmuRuns - m_cntEmuRunsLast);
+    //wxLogDebug("EMU: avg:%.1f max: %.1f ms runs: %d - %d", m_avgEmuTime, m_maxEmuTime, m_cntEmuRuns, m_cntEmuRuns - m_cntEmuRunsLast);
     m_cntEmuRunsLast = m_cntEmuRuns;
 }
 
@@ -255,13 +255,15 @@ void flukeEmuHw::LoadROMs(uint8_t *ROM, ROMPage *romp)
 		{
 			wxLogDebug("Unable to open file %s\n",romp->name);
 		}
-
-		if (fread(ROM + romp->startAddress,1,romp->size,romFile) != romp->size)
+		else
 		{
-			wxLogDebug("Unable to read file %s\n",romp->name);
-			fclose(romFile);
-		}
-		fclose(romFile);
+            if (fread(ROM + romp->startAddress,1,romp->size,romFile) != romp->size)
+            {
+                wxLogDebug("Unable to read file %s\n",romp->name);
+                fclose(romFile);
+            }
+            fclose(romFile);
+        }
 		romp++;
 	}
 }
