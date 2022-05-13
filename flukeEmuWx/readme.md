@@ -32,3 +32,8 @@ Note the license! This code is not for commercial use and you are not allowed to
 ### Start Codeblocks IDE
 * Open project file: FlukeEmuWx/FlukeEmuWx.cbp
 * Build the project
+
+### Run flukeEmuWx
+* Press the run button in codeblocks
+* In order to run flukeEmuWx standalone, you need to place the 'media' folder in the same folder as the executable
+   * The executable file 'flukeEmuWx' is in the bin/Release or bin/Debug folder, depending on which target was built
