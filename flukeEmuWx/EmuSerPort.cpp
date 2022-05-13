@@ -34,6 +34,7 @@ emuSerPort::emuSerPort(void)
     m_inFileOpen  = false;
     m_outFileOpen = false;
     m_serMode     = SER_MODE_PORT;
+    m_serStat     = 0;
 
     Reset();
 }
@@ -100,9 +101,14 @@ uint8_t emuSerPort::Read(uint16_t addr)
             }
             else if(m_serMode == SER_MODE_FILE)
             {   // File sent -> close
-                wxLogDebug("SERPORT: File sent!");
-                fclose(m_fhInFile);
-                m_inFileOpen = false;
+                if(m_inFileOpen)
+                {
+                    wxLogDebug("SERPORT: File sent!");
+                    fclose(m_fhInFile);
+                    m_serStat &= ~SER_INFILE_OPEN;
+                    m_serStat |= SER_UPD_FLAG;
+                    m_inFileOpen = false;
+                }
             }
         }
     }
@@ -127,6 +133,8 @@ int emuSerPort::setSerPort(wxString pname, int speed)
     if(m_portOpen)
     {   // close
         closeSerPort();
+        m_serStat &= ~SER_PORT_OPEN;
+        m_serStat |= SER_UPD_FLAG;
         m_portOpen = false;
     }
 
@@ -137,6 +145,7 @@ int emuSerPort::setSerPort(wxString pname, int speed)
             m_portName  = pname;
             m_baudRate  = speed;
             m_portOpen = true;
+            m_serStat |= SER_PORT_OPEN | SER_UPD_FLAG;
             setMode(SER_MODE_PORT);
             ret = 1;
         }
@@ -290,7 +299,7 @@ void set_blocking(int fd, int should_block)
 }
 #endif
 
-// Serial port file to mapping
+// Serial port to file mapping
 void emuSerPort::setMode(int newMode)
 {
     if(newMode != m_serMode)
@@ -307,6 +316,8 @@ void emuSerPort::setMode(int newMode)
                 fclose(m_fhInFile);
                 m_inFileOpen = false;
             }
+            m_serStat &= ~(SER_INFILE_OPEN | SER_OUTFILE_OPEN);
+            m_serStat |= SER_UPD_FLAG;
             m_serMode = SER_MODE_PORT;
         }
         else if(newMode == SER_MODE_FILE)
@@ -316,6 +327,8 @@ void emuSerPort::setMode(int newMode)
                 closeSerPort();
                 m_portOpen = false;
             }
+            m_serStat &= ~SER_PORT_OPEN;
+            m_serStat |= SER_UPD_FLAG;
             m_serMode = SER_MODE_FILE;
         }
         else
@@ -325,7 +338,9 @@ void emuSerPort::setMode(int newMode)
 
 int emuSerPort::getMode(void)
 {
-    return m_serMode;
+    int modeStat = m_serMode | m_serStat;
+    m_serStat &= ~SER_UPD_FLAG;
+    return modeStat;
 }
 
 int emuSerPort::openInFile(wxString pname)
@@ -334,6 +349,8 @@ int emuSerPort::openInFile(wxString pname)
     if(m_inFileOpen)
     {
         fclose(m_fhInFile);
+        m_serStat &= ~SER_INFILE_OPEN;
+        m_serStat |= SER_UPD_FLAG;
         m_inFileOpen = false;
     }
 
@@ -346,6 +363,7 @@ int emuSerPort::openInFile(wxString pname)
         {
             ret = 1;
             m_inFileOpen = true;
+            m_serStat |= SER_UPD_FLAG | SER_INFILE_OPEN;
             setMode(SER_MODE_FILE);
         }
     }
@@ -359,6 +377,8 @@ int emuSerPort::openOutFile(wxString pname)
     {
         fclose(m_fhOutFile);
         m_outFileOpen = false;
+        m_serStat &= ~SER_OUTFILE_OPEN;
+        m_serStat |= SER_UPD_FLAG;
     }
 
     if(pname != "")
@@ -370,6 +390,7 @@ int emuSerPort::openOutFile(wxString pname)
         {
             ret = 1;
             m_outFileOpen = true;
+            m_serStat |= SER_UPD_FLAG | SER_OUTFILE_OPEN;
             setMode(SER_MODE_FILE);
         }
     }
@@ -381,7 +402,7 @@ int emuSerPort::readInFile(uint8_t* pdata, int maxNum)
     int ret = -1;
     if(m_inFileOpen)
     {
-        int n = fread(pdata, 1, maxNum, m_fhInFile);  // write data
+        int n = fread(pdata, 1, maxNum, m_fhInFile);  // read data
         //wxLogDebug("SERPORT: File read %d", n);
         if(n > 0)
             ret = 1;

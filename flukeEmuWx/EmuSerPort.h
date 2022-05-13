@@ -36,6 +36,12 @@ Boston, MA 02111-1307 USA
 
 #define SER_MODE_PORT       0
 #define SER_MODE_FILE       1
+#define SER_MODE_MASK       0x000F
+
+#define SER_PORT_OPEN       0x0100
+#define SER_INFILE_OPEN     0x0200
+#define SER_OUTFILE_OPEN    0x0400
+#define SER_UPD_FLAG        0x0800
 
 class emuSerPort
 {
@@ -72,6 +78,7 @@ class emuSerPort
     //int         m_rxBufRind;
 
     int m_serMode; // serial emulation mode: port or file
+    int m_serStat; // serial emulation status
 
     // Serial port file mode
     wxString    m_inFileName;

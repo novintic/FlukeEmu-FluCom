@@ -15,6 +15,8 @@ Boston, MA 02111-1307 USA
 
 // ********************************
 // Emulator window
+#include <dirent.h>
+#include <errno.h>
 
 #include "wx/wx.h"
 #include "wx/image.h"
@@ -46,11 +48,36 @@ wxEND_EVENT_TABLE()
 EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size)
          :wxWindow( parent, id, pos, size, wxSUNKEN_BORDER )
 {
+    // Check media path
+    DIR* mediaDir = opendir("media");
+    if(mediaDir)
+    {   // all ok, just close dir
+        closedir(mediaDir);
+    }
+    else if (ENOENT == errno)
+    {   // dir does not exists
+        wxMessageBox (wxString::Format("Media directory not found!\nThe folder 'media' must be in the same folder as\nthe flukeEmuWx executable!"), wxString("Media Folder missing"));
+        //throw std::domain_error("Media directory not found!");
+        exit(EXIT_FAILURE);
+    }
+    else
+    {   // error opening dir
+        wxMessageBox (wxString::Format("Media directory not accessible!\nDo you have the correct permissions?"), wxString("Media Folder"));
+        //throw std::domain_error("Media directory not accessible!");
+        exit(EXIT_FAILURE);
+    }
+
     // Load background bitmap
     if (m_bgndImage.LoadFile(F9010PANEL_BMP, wxBITMAP_TYPE_BMP))
     {
         wxLogDebug("BGND Image ok");
         m_bgndPanel = new wxBitmap(m_bgndImage);
+    }
+    else
+    {
+        wxMessageBox (wxString::Format("Panel image: %s not found!\nThe image must be in the folder 'media'!", F9010PANEL_BMP), wxString("Panel image missing"));
+        //throw std::domain_error("Panel image not found!");
+        exit(EXIT_FAILURE);
     }
 
     m_keyDown = false;
@@ -182,6 +209,8 @@ void EmuPanel::OnRunEmu(wxTimerEvent& event)
         m_tapeFileSet = fset;
         Refresh(true, NULL); // TEST DO BETTER
     }
+    // update serial port/file status
+    updateSerialStatus();
 }
 
 wxSize EmuPanel::GetNativeSize()
@@ -704,7 +733,7 @@ void EmuPanel::SerInFileDialog(void)
     {   // close any open files
         m_emuHw.m_serPort.openInFile("");
     }
-    updateSerialStatus(); // update serial status
+    //updateSerialStatus(); // update serial status
 }
 
 void EmuPanel::SerOutFileDialog(void)
@@ -736,21 +765,29 @@ void EmuPanel::SerOutFileDialog(void)
     {   // close any open files
         m_emuHw.m_serPort.openOutFile("");
     }
-    updateSerialStatus(); // update serial status
+    //updateSerialStatus(); // update serial status
 }
 
 void EmuPanel::updateSerialStatus(void)
 {
     int sm = m_emuHw.m_serPort.getMode();
-    wxString serStat;
-    if(sm == 0) // port mode?
+    if(sm & SER_UPD_FLAG)
     {
-        serStat = wxString::Format("Serial port: %s : [8N1 9600]", m_serPortDispName);
+        wxString serStat;
+        if((sm & SER_MODE_MASK) == 0) // port mode?
+        {
+            if(sm & SER_PORT_OPEN)
+                serStat = wxString::Format("Serial port: %s : [8N1 9600]", m_serPortDispName);
+            else
+                serStat = wxString::Format("Serial port: <none>");
+        }
+        else
+        {
+            wxString istr = sm & SER_INFILE_OPEN ? m_serInFileDispName : "-";
+            wxString ostr = sm & SER_OUTFILE_OPEN ? m_serOutFileDispName : "-";
+            serStat = wxString::Format("Serial file: IN:%s / OUT: %s ", istr, ostr);
+        }
+        wxLogDebug("SERSTAT: %s", serStat);
+        ((FlukeEmuWxFrame*)GetParent())->GetStatusBar()->SetStatusText(serStat, 1);
     }
-    else
-    {
-        serStat = wxString::Format("Serial file: IN:%s / OUT: %s ", m_serInFileDispName, m_serOutFileDispName);
-    }
-    wxLogDebug("SERSTAT: %s", serStat);
-    ((FlukeEmuWxFrame*)GetParent())->GetStatusBar()->SetStatusText(serStat, 1);
 }

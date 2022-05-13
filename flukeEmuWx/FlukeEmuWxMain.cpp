@@ -50,12 +50,12 @@ wininet
 #include "FlukeEmuWxMain.h"
 #include "EmuPanel.h"
 
-#define VER_STRING  "0.93"
+#define VER_STRING  "0.94"
 
 //helper functions
 wxString flukeEmuWxBuildinfo(void)
 {
-    return wxString("FlukeEmuWx " VER_STRING  " Mar 2022\n\nBy Clemens / (Novintic)");
+    return wxString("FlukeEmuWx " VER_STRING  " May 2022\n\nBy Clemens / (Novintic)");
 }
 
 enum wxbuildinfoformat { short_f, long_f };
@@ -111,7 +111,7 @@ FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title)
     settingsMenu->Append(idMenuTapeFile, _("&Tape file"), _("Set tape file"));
     // serial port menu
     wxMenu* serPortMenu = new wxMenu(_T(""));
-    serPortMenu->Append(idMenuSerialPortOpts, _("&Serial port"), _("Serial port settings"));
+    serPortMenu->Append(idMenuSerialPortOpts, _("&Set port"), _("Serial port settings"));
     serPortMenu->Append(idMenuSerialPortInFile, _("&Send file"), _("Send file to emulator"));
     serPortMenu->Append(idMenuSerialPortOutFile, _("&Receive file"), _("Receive file from emulator"));
     // attach popup menu
