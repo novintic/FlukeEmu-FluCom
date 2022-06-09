@@ -28,12 +28,25 @@ wxIMPLEMENT_APP(FlukeEmuWxApp);
 
 bool FlukeEmuWxApp::OnInit()
 {
+    if (!wxApp::OnInit())
+        return false;
     // Log window
     //wxLogWindow* logWnd = new wxLogWindow(NULL, "FlukeEmuLog", true, false);
     //logWnd->SetActiveTarget(logWnd);
-    FlukeEmuWxFrame* frame = new FlukeEmuWxFrame(0L, _("FlukeEmWx"));
+    FlukeEmuWxFrame* frame = new FlukeEmuWxFrame(0L, _("FlukeEmWx"), fullscreen);
     wxLogDebug("FlukeEmuWx LOG started\n");
     //frame->SetIcon(wxICON(aaaa)); // To Set App Icon
     frame->Show();
+    return true;
+}
+
+void FlukeEmuWxApp::OnInitCmdLine(wxCmdLineParser& parser)
+{
+    parser.SetDesc (g_cmdLineDesc);
+}
+
+bool FlukeEmuWxApp::OnCmdLineParsed(wxCmdLineParser& parser)
+{
+    fullscreen = parser.Found(wxT("f"));
     return true;
 }
