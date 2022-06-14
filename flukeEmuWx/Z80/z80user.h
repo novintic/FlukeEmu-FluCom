@@ -10,9 +10,16 @@
 #ifndef __Z80USER_INCLUDED__
 #define __Z80USER_INCLUDED__
 
+#include "stdint.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+void WrZ80(uint16_t Addr,uint8_t Value);
+uint8_t RdZ80(uint16_t Addr);
+void OutZ80(uint16_t Port,uint8_t Value);
+uint8_t InZ80(uint16_t Port);
 
 /* Write the following macros for memory access and input/output on the Z80. 
  *
@@ -84,43 +91,31 @@ extern "C" {
  *                      instructions.h for a list.
  */
 
-/* Here are macros for emulating zexdoc and zexall. Read/write memory macros
- * are written for a linear 64k RAM. Input/output port macros are used as 
- * "traps" to simulate system calls. 
- */
-
-#include "zextest.h"
 
 #define Z80_READ_BYTE(address, x)                                       \
 {                                                                       \
-        (x) = ((ZEXTEST *) context)->memory[(address) & 0xffff];	\
+        (x) = RdZ80((address) & 0xffff);                                \
 }
 
 #define Z80_FETCH_BYTE(address, x)		Z80_READ_BYTE((address), (x))
 
 #define Z80_READ_WORD(address, x)                                       \
 {                                                                       \
-	unsigned char	*memory;					\
-									\
-	memory = ((ZEXTEST *) context)->memory;				\
-        (x) = memory[(address) & 0xffff]                                \
-                | (memory[((address) + 1) & 0xffff] << 8);              \
+        (x) = RdZ80((address) & 0xffff)                                 \
+                | (RdZ80(((address) + 1) & 0xffff) << 8);               \
 }
 
 #define Z80_FETCH_WORD(address, x)		Z80_READ_WORD((address), (x))
 
 #define Z80_WRITE_BYTE(address, x)                                      \
 {                                                                       \
-        ((ZEXTEST *) context)->memory[(address) & 0xffff] = (x);	\
+        WrZ80((address) & 0xffff, (x));                                 \
 }
 
 #define Z80_WRITE_WORD(address, x)                                      \
 {                                                                       \
-	unsigned char	*memory;					\
-									\
-	memory = ((ZEXTEST *) context)->memory;				\
-        memory[(address) & 0xffff] = (x); 				\
-        memory[((address) + 1) & 0xffff] = (x) >> 8; 			\
+        WrZ80((address) & 0xffff, (x));                                 \
+        WrZ80(((address) + 1) & 0xffff, (x) >> 8);                      \
 }
 
 #define Z80_READ_WORD_INTERRUPT(address, x)	Z80_READ_WORD((address), (x))
@@ -129,13 +124,12 @@ extern "C" {
 
 #define Z80_INPUT_BYTE(port, x)                                         \
 {                                                                       \
-        SystemCall((ZEXTEST *) context);				\
+        (x) = InZ80((port));                                            \
 }
 
 #define Z80_OUTPUT_BYTE(port, x)                                        \
 {                                                                       \
-        ((ZEXTEST *) context)->is_done = !0; 				\
-        number_cycles = 0;                                              \
+        OutZ80((port), (x));                                            \
 }
 
 #ifdef __cplusplus
