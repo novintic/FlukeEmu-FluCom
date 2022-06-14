@@ -76,22 +76,15 @@
 		<Unit filename="FlukeEmuWxApp.h" />
 		<Unit filename="FlukeEmuWxMain.cpp" />
 		<Unit filename="FlukeEmuWxMain.h" />
-		<Unit filename="Z80/Codes.h" />
-		<Unit filename="Z80/CodesCB.h" />
-		<Unit filename="Z80/CodesED.h" />
-		<Unit filename="Z80/CodesXCB.h" />
-		<Unit filename="Z80/CodesXX.h" />
-		<Unit filename="Z80/ConDebug.c">
+		<Unit filename="Z80/instructions.h" />
+		<Unit filename="Z80/macros.h" />
+		<Unit filename="Z80/tables.h" />
+		<Unit filename="Z80/z80config.h" />
+		<Unit filename="Z80/z80emu.h" />
+		<Unit filename="Z80/z80user.h" />
+		<Unit filename="Z80/z80emu.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="Z80/Debug.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Z80/Tables.h" />
-		<Unit filename="Z80/Z80.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Z80/Z80.h" />
 		<Unit filename="resource.rc">
 			<Option compilerVar="WINDRES" />
 			<Option target="&lt;{~None~}&gt;" />
