@@ -50,7 +50,7 @@ wininet
 #include "FlukeEmuWxMain.h"
 #include "EmuPanel.h"
 
-#define VER_STRING  "0.94"
+#define VER_STRING  "0.95"
 
 //helper functions
 wxString flukeEmuWxBuildinfo(void)
