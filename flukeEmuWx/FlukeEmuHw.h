@@ -20,7 +20,8 @@ Boston, MA 02111-1307 USA
 
 #include "stdint.h"
 
-#include "Z80/Z80.h"
+#include "Z80/z80emu.h"
+#include "Z80/z80user.h"
 #include "EmuPodProbe.h"
 #include "EmuTapeUnit.h"
 #include "EmuDispKeyb.h"
@@ -77,7 +78,7 @@ class flukeEmuHw : public wxThread
     emuSerPort  m_serPort;
 
  protected:
-    Z80 Z80Regs;    // Z80 registers
+    Z80_STATE Z80State;    // Z80 registers
     ROMPage flukeROMs[4] =
     {
         {"media/128C900.U9",  0x0000, 0x4000},

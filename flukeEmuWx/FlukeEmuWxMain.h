@@ -24,7 +24,7 @@ Boston, MA 02111-1307 USA
 class FlukeEmuWxFrame: public wxFrame
 {
     public:
-        FlukeEmuWxFrame(wxFrame *frame, const wxString& title);
+        FlukeEmuWxFrame(wxFrame *frame, const wxString& title, bool fullscreen);
         ~FlukeEmuWxFrame();
 
     private:

@@ -17,13 +17,24 @@ Boston, MA 02111-1307 USA
 #define WXWFLUKEEMUAPP_H
 
 #include <wx/app.h>
+#include <wx/cmdline.h>
 
 class FlukeEmuWxApp : public wxApp
 {
     public:
         virtual bool OnInit();
+        virtual void OnInitCmdLine(wxCmdLineParser& parser);
+        virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
+        
+    private:
+        bool fullscreen;
 
+};
 
+static const wxCmdLineEntryDesc g_cmdLineDesc [] =
+{
+    { wxCMD_LINE_SWITCH, "f", "fullscreen", "start fullscreen" },
+    { wxCMD_LINE_NONE }
 };
 
 #endif // WXWFLUKEEMUAPP_H

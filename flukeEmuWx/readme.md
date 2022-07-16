@@ -20,11 +20,6 @@ You need:
 ### Install pulseAudio
 * sudo apt-get install -y libpulse-dev
 
-### Install Z80 emulator source code by Marat Fayzullin
-Note the license! This code is not for commercial use and you are not allowed to distribute it yourself.
-* Download Z80 Emulator : http://fms.komkon.org/EMUL8/Z80-081707.zip
-* Copy the source files into the project folder FlukeEmuWx/Z80
-
 ### Install Fluke ROMs (we cannot supply these due to copyright)
 * Copy the 3 ROM files to FlukeEmuWx/media
    * Files have to be named: 128C900.U9, 128C901.U19, 128C902.U21
@@ -32,3 +27,8 @@ Note the license! This code is not for commercial use and you are not allowed to
 ### Start Codeblocks IDE
 * Open project file: FlukeEmuWx/FlukeEmuWx.cbp
 * Build the project
+
+### Run flukeEmuWx
+* Press the run button in codeblocks
+* In order to run flukeEmuWx standalone, you need to place the 'media' folder in the same folder as the executable
+   * The executable file 'FlukeEmuWx' is in the bin/Release or bin/Debug folder, depending on which target was built

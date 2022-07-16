@@ -670,7 +670,7 @@ uint8_t EmuPanel::GetKey(int x, int y, wxRect* pKr)
 void EmuPanel::TapeFileDialog(void)
 {
     wxFileDialog openFileDialog(this, _("Open cassette file"), "", "DefaultName",
-                   "Cassette files (*.txt)|*.*|All files|*.*", wxFD_OPEN);
+                   "Cassette files (*.txt)|*.txt|All files|*.*", wxFD_OPEN);
 
     int ret =  openFileDialog.ShowModal();
     if (ret != wxID_CANCEL)

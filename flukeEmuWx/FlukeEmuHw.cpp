@@ -130,7 +130,7 @@ void flukeEmuHw::dispStats(void)
 
 void flukeEmuHw::resetHw(void)
 {
-    ResetZ80(&Z80Regs);
+    Z80Reset(&Z80State);
     m_dispKeyb.Reset();
     //m_podProbe.Reset();
     //m_tapeUnit.Reset();
@@ -140,7 +140,7 @@ void flukeEmuHw::resetHw(void)
 
 int flukeEmuHw::runHw(int nCycles)
 {
-    int val = ExecZ80(&Z80Regs, nCycles);
+    int val = Z80Emulate(&Z80State, nCycles, NULL);
     //z80_raise_IRQ(0xff);
     //z80_lower_IRQ();
     return val;
@@ -279,7 +279,7 @@ void flukeEmuHw::LoadROMs(uint8_t *ROM, ROMPage *romp)
 // *******************************************************************
 // C-Hooks for Z80 emulator
 
-// Mapping to Marat Z80 emulator functions
+// Mapping to Z80 emulator functions
 flukeEmuHw* emuInst = NULL;
 
 // Call this function to set the pointer to emuCore instance
@@ -291,14 +291,14 @@ void flukeEmuHwSetInst(flukeEmuHw* emuInstPar)
 
 // Z80 needs these functions
 // Z80 Write handler
-void WrZ80(register word Addr,register byte Value)
+void WrZ80(uint16_t Addr,uint8_t Value)
 {
     if(emuInst != NULL)
         emuInst->writeMem(Addr, Value);
 };
 
 // Z80 Read handler
-byte RdZ80(register word Addr)
+uint8_t RdZ80(uint16_t Addr)
 {
     if(emuInst != NULL)
         return emuInst->readMem(Addr);
@@ -306,28 +306,17 @@ byte RdZ80(register word Addr)
 }
 
 // Z80 Port out handler
-void OutZ80(register word Port,register byte Value)
+void OutZ80(uint16_t Port,uint8_t Value)
 {
     if(emuInst != NULL)
         emuInst->writeIO(Port, Value);
 };
 
 // Z80 Port in handler
-byte InZ80(register word Port)
+uint8_t InZ80(uint16_t Port)
 {
     if(emuInst != NULL)
         return emuInst->readIO(Port);
     return 0;
 };
-
-// Z80 Patch instruction handler
-void PatchZ80(register Z80 *R)
-{};
-
-
-word LoopZ80(register Z80 *R)
-{
-    return INT_NONE;    // INT_QUIT
-};
-
 

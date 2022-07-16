@@ -50,7 +50,7 @@ wininet
 #include "FlukeEmuWxMain.h"
 #include "EmuPanel.h"
 
-#define VER_STRING  "0.94"
+#define VER_STRING  "0.95"
 
 //helper functions
 wxString flukeEmuWxBuildinfo(void)
@@ -96,8 +96,8 @@ BEGIN_EVENT_TABLE(FlukeEmuWxFrame, wxFrame)
     EVT_MOUSE_EVENTS(FlukeEmuWxFrame::OnMouseEvent)
 END_EVENT_TABLE()
 
-FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title)
-    : wxFrame(frame, -1, title)
+FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title, bool fullscreen)
+    : wxFrame(frame, -1, title), m_fullScreen(fullscreen)
 {
     // create a menu bar
     wxMenuBar* mbar = new wxMenuBar();
@@ -139,7 +139,7 @@ FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title)
     m_Emu->Bind(wxEVT_LEFT_DOWN, &FlukeEmuWxFrame::OnMouseEvent, this);
 
     Fit();
-    m_fullScreen = false;
+    ShowFullScreen(m_fullScreen, wxFULLSCREEN_ALL);
 }
 
 
