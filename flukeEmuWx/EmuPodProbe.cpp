@@ -13,15 +13,18 @@ Boston, MA 02111-1307 USA
 ****************************************************************************/
 // By Clemens (novintic), 2022
 // PIA R6520 emulation
+#include "wx/wx.h"  // for DEBUG msg
+//#include "ProbeBoard.h"
 
 #include "EmuPodProbe.h"
-#include "wx/wx.h"  // for DEBUG msg
+
 
 //#define DEBUG_PIAREG      // activate PIA6520 register messages in console
 //#define DEBUG_PODIO       // activate POD io messages in console
 
 emuPodProbe::emuPodProbe(void)
 {
+ //   m_pPB   = NULL;
     // Control signals
     RS0 = false;
     RS1 = false ;
@@ -45,6 +48,9 @@ emuPodProbe::emuPodProbe(void)
 
     m_beepTrig = false;
     m_beepTrigLast = false;
+
+    m_pia567in      = 0;    // Probe levels
+    m_pia567out     = 0;    // Probel pulse mode
     // Init emu IOs
     InitEmuIO();
 }
@@ -52,6 +58,11 @@ emuPodProbe::emuPodProbe(void)
 emuPodProbe::~emuPodProbe(void)
 {
 }
+
+//void emuPodProbe::registerProbeBoard(ProbeBoard* pPB)
+//{
+//    m_pPB = pPB;
+//}
 
 // Fluke 9010 connections
 //        - 6520
@@ -320,7 +331,7 @@ void emuPodProbe::SetPI(int piSel, uint8_t OReg)
     // Probe
     if(piSel == SELPIA)
     {
-
+        m_pia567out = OReg & 0xE0;
     }
 }
 
@@ -350,12 +361,21 @@ uint8_t emuPodProbe::GetPI(int piSel, uint8_t PIBstate)
         wxLogDebug("6520: PIB%c:%02x\n", piSel == SELPIA ? 'A':'B', PIB[piSel]);
 #endif
     }
+
+    if(piSel == SELPIA)
+    {
+        // probe data
+        PIBstate &= 0x1F;
+        PIBstate |= m_pia567in;
+        //wxLogDebug("PIA567: IN: %02x", m_pia567in);
+    }
     return PIBstate;
 }
 
 // set Cx2 output
 void emuPodProbe::setCx2(int xab, bool val, bool edgeUp)
 {
+    wxLogDebug("PIA: SET Cx2: AB:%x v:%d eu:%x", xab, val, edgeUp);
     // set mapped HW pins
 
     // Probe circuit
@@ -367,13 +387,16 @@ void emuPodProbe::setCx2(int xab, bool val, bool edgeUp)
         {   // read back PIA_D5, PIA_D6, PIA_D7
             // the probe returns HI, LO, or tristate
             // only one (and at least one) shall be active at a moment in time
-            // PA5 signal tristate
+            // PA5 signal invalid
             // PA6 signal hi
             // PA7 signal low
 
-            // just set tristate (always)
-            PIB[SELPIA] |= (1 << 5);
-            //PIB[SELPIA] |= 0xc0;
+            // Just need to apply the signals here
+            // In emulation signals are just applied when
+            // PIB[A] is read in GetPi
+            //PIB[SELPIA] &= 0x1F;
+            //PIB[SELPIA] |= m_pia567in;
+            wxLogDebug("PIA567: IN: %02x", m_pia567in);
         }
         // a low resets the latches to 0
         else
@@ -386,6 +409,9 @@ void emuPodProbe::setCx2(int xab, bool val, bool edgeUp)
             // PA5 gen hi pulse
             // PA6 gen lo pulse
             // PA7 select sync/freerun
+            // Signals are applied in SetPI directly
+            // m_pia567out = PIB[SELPIA] & 0xE0;
+            wxLogDebug("PIA567: OUT: %02x", m_pia567out);
         }
     }
 }
@@ -412,4 +438,18 @@ void emuPodProbe::beeper(bool trig)
         m_beepTrig = true;
     }
     m_beepTrigLast = trig;
+}
+
+// Set the PIA bits PA 5,6,7 depending on level detector inputs
+void emuPodProbe::setLevels(uint8_t pia567)
+{
+    //wxLogDebug("LEVDET: %02x\n", pia567);
+    m_pia567in = pia567;
+}
+
+// Get the pules mode to set PIA bits PA 5,6,7
+uint8_t emuPodProbe::getPulesMode(void)
+{
+    //wxLogDebug("PULSEMODE: %02x\n", m_pia567out);
+    return m_pia567out;
 }

@@ -31,6 +31,7 @@ void emuEvCntSigGen::Reset(void)
     m_fb = 0x80;
     m_evCnt = 0 | m_fb; // bit 7 is !(Fuse blown)
     m_sigGen = 0;
+    m_rstCmd = 0;
 }
 
 void emuEvCntSigGen::Write(uint16_t addr, uint8_t data)
@@ -45,17 +46,19 @@ uint8_t emuEvCntSigGen::Read(uint16_t addr)
     if(ioSel == 0) // read event counter & FB bit
     {
         val = m_evCnt;
+        //wxLogDebug("R: SIGGEN: %04x (EV CNT)", addr);
     }
     else if(ioSel == 1)   // reset event cnt and sig gen
     {
         m_evCnt = 0 | 0x80; // bit 7 is !(Fuse blown)
         m_sigGen = 0;
-        //wxLogDebug("R: SIGGEN: %04x (RESET)", addr);
+        m_rstCmd = 1;
+        wxLogDebug("R: SIGGEN: %04x (RESET)", addr);
     }
     else if(ioSel == 2)   // read signature hi byte
     {
         val = m_sigGen >> 8;
-        //wxLogDebug("R: SIGGEN: %04x (SIG HI)", addr);
+        wxLogDebug("R: SIGGEN: %04x (SIG HI)", addr);
     }
     else if(ioSel == 3)    // read signature low byte
     {
@@ -83,3 +86,19 @@ void emuEvCntSigGen::onSyncEvent(bool event)
     m_sigGen = (m_sigGen << 1) | in;
 }
 
+void emuEvCntSigGen::setEvCnt(uint8_t cnt)
+{
+    m_evCnt = (m_evCnt & 0x80)  | (cnt & 0x7F);
+}
+
+void emuEvCntSigGen::setSignature(uint16_t sig)
+{
+    m_sigGen = sig;
+}
+
+uint8_t emuEvCntSigGen::getRstCmd(void)
+{
+    uint8_t rc = m_rstCmd;
+    m_rstCmd = 0;
+    return rc;
+}

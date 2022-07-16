@@ -29,8 +29,8 @@ wxIMPLEMENT_APP(FlukeEmuWxApp);
 bool FlukeEmuWxApp::OnInit()
 {
     // Log window
-    //wxLogWindow* logWnd = new wxLogWindow(NULL, "FlukeEmuLog", true, false);
-    //logWnd->SetActiveTarget(logWnd);
+    wxLogWindow* logWnd = new wxLogWindow(NULL, "FlukeEmuLog", true, false);
+    logWnd->SetActiveTarget(logWnd);
     FlukeEmuWxFrame* frame = new FlukeEmuWxFrame(0L, _("FlukeEmWx"));
     wxLogDebug("FlukeEmuWx LOG started\n");
     //frame->SetIcon(wxICON(aaaa)); // To Set App Icon
