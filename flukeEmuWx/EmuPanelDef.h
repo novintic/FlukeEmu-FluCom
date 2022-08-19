@@ -82,8 +82,12 @@ Boston, MA 02111-1307 USA
 #define KEY_SETUP         61    // .
 #define KEY_DISPL         62    // S
 #define KEY_AUX_IF        63    // K
-#define KEY_HIGH          64
-#define KEY_LOW           65
+
+#define KEY_HIGH_DOWN     64
+#define KEY_HIGH_UP       65
+
+#define KEY_LOW_DOWN      66
+#define KEY_LOW_UP        67
 
 #define KEY_NOKEY         255
 
@@ -98,7 +102,7 @@ Boston, MA 02111-1307 USA
 #define ROW08KEYS   {KEY_PROGRAM,  KEY_IF,         KEY_DISPL,      KEY_AND,          KEY_OR,            KEY_READ_PROBE}
 #define ROW09KEYS   {KEY_EXEC,     KEY_GR_THAN,    KEY_LABEL,      KEY_SHIFT_LEFT,   KEY_SHIFT_RIGHT,   KEY_REG}
 #define ROW10KEYS   {KEY_AUX_IF,   KEY_EQUALS,     KEY_GOTO,       KEY_INCR,         KEY_DECR,          KEY_COMPL}
-#define ROW11KEYS   {KEY_READ_TAPE,KEY_WRITE_TAPE, KEY_SYNC,       KEY_HIGH,         KEY_LOW,           KEY_NOKEY}
+#define ROW11KEYS   {KEY_READ_TAPE,KEY_WRITE_TAPE, KEY_SYNC,       KEY_HIGH_DOWN,    KEY_LOW_DOWN,      KEY_NOKEY}
 
 #define KEYMAP  {ROW00KEYS,ROW01KEYS,ROW02KEYS,ROW03KEYS,ROW04KEYS,ROW05KEYS,ROW06KEYS,ROW07KEYS,ROW08KEYS,ROW09KEYS,ROW10KEYS,ROW11KEYS}
 
@@ -224,8 +228,8 @@ Boston, MA 02111-1307 USA
  {WXK_NUMPAD9, KEY_9}, 	/*9*/ \
  {WXK_LEFT, KEY_PRIOR}, /*10*/ \
  {WXK_RIGHT, KEY_MORE}, /*11*/ \
- {WXK_PAGEUP, KEY_HIGH}, /*12*/ \
- {WXK_PAGEDOWN, KEY_LOW}, /*13*/ \
+ {WXK_PAGEUP, KEY_HIGH_DOWN}, /*12*/ \
+ {WXK_PAGEDOWN, KEY_LOW_DOWN}, /*13*/ \
  {WXK_HOME, KEY_SYNC},      /*14*/ \
  {WXK_INSERT, KEY_READ_TAPE}, /*15*/ \
  {WXK_DELETE, KEY_WRITE_TAPE}, /*16*/ \

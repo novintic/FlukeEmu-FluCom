@@ -31,11 +31,15 @@ class emuEvCntSigGen
     void Write(uint16_t address, uint8_t data);
     uint8_t Read(uint16_t address);
 
+    void setEvCnt(uint8_t cnt);
+    void setSignature(uint16_t sig);
+    uint8_t getRstCmd(void);
+
   protected:
     uint8_t m_fb;
     uint8_t m_evCnt;
     uint16_t m_sigGen;
-
+    uint8_t m_rstCmd;
 
 };
 

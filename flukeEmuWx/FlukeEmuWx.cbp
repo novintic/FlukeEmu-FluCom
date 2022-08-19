@@ -27,8 +27,6 @@
 				<ResourceCompiler>
 					<Add directory="D:/Program/wxWidgets-3.1.5/lib/gcc_dll/msw" />
 				</ResourceCompiler>
-				<Linker>
-				</Linker>
 			</Target>
 			<Target title="Release">
 				<Option output="bin/Release/FlukeEmuWx" prefix_auto="1" extension_auto="1" />
@@ -47,7 +45,7 @@
 		</Build>
 		<Compiler>
 			<Add option="-I/usr/include" />
-			<Add option="-I/usr/include -D WIRINGPI" />	 
+			<Add option="-I/usr/include -D WIRINGPI" />
 			<Add option="`wx-config --cxxflags`" />
 			<Add option="-DEXECZ80" />
 			<Add option="-DLSB_FIRST" />
@@ -76,6 +74,8 @@
 		<Unit filename="FlukeEmuWxApp.h" />
 		<Unit filename="FlukeEmuWxMain.cpp" />
 		<Unit filename="FlukeEmuWxMain.h" />
+		<Unit filename="ProbeBoard.cpp" />
+		<Unit filename="ProbeBoard.h" />
 		<Unit filename="Z80/instructions.h" />
 		<Unit filename="Z80/macros.h" />
 		<Unit filename="Z80/tables.h" />
@@ -83,7 +83,7 @@
 		<Unit filename="Z80/z80emu.h" />
 		<Unit filename="Z80/z80user.h" />
 		<Unit filename="Z80/z80emu.c">
-			<Option compilerVar="CC" />
+		<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="resource.rc">
 			<Option compilerVar="WINDRES" />

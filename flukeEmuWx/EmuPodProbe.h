@@ -20,7 +20,7 @@ Boston, MA 02111-1307 USA
 // Clemens Bürgi 2022
 #include <stdint.h>
 #include <stdio.h>
-
+//#include "ProbeBoard.h"
 
 class emuPodProbe
 {
@@ -47,6 +47,9 @@ class emuPodProbe
         /*virtual*/ uint8_t GetPI(int piSel, uint8_t PIBstate);
         /*virtual*/ void setCx2(int xab, bool val, bool edgeUp);
         /*virtual*/ bool getCxn(int xab, bool n2);
+
+        void setLevels(uint8_t pia567);
+        uint8_t getPulesMode(void);
 
         const int SELPIA = 0;
         const int SELPIB = 1;
@@ -81,6 +84,10 @@ class emuPodProbe
         // F9010A stuff (move to upper class)
         bool m_beepTrig;
         bool m_beepTrigLast;
+
+        // Probe board
+        uint8_t m_pia567in;     // Probe levels
+        uint8_t m_pia567out;    // Probel ulse mode
 };
 
 

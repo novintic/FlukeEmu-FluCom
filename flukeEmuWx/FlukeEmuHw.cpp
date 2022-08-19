@@ -46,6 +46,9 @@ flukeEmuHw::flukeEmuHw() : wxThread(wxTHREAD_JOINABLE)
     m_avgEmuTime = 0;
     m_maxEmuTime = 0;
     m_cntEmuRunsLast = 0;
+
+    m_probeBoard.regPodProbe(&m_podProbe);
+    m_probeBoard.regEvSigGen(&m_evCntSigGen);
 }
 
 flukeEmuHw::~flukeEmuHw()
@@ -57,6 +60,10 @@ wxThread::ExitCode flukeEmuHw::Entry()
 {
     int64_t lastT = 0;
     wxLogDebug("EMU: ec: %d  ei: %d us", m_emuCycles,  m_execIntUs);
+    // Start probe board comm thread
+    if ( m_probeBoard.Run() != wxTHREAD_NO_ERROR )
+        wxLogError("Can't create probe board comm thread!");
+
     // emulation loop
     while(!m_exitEmu)
     {

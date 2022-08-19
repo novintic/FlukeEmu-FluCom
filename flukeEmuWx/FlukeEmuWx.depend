@@ -1597,23 +1597,25 @@
 1644026427 /usr/local/include/wx-3.1/wx/gtk/mdi.h
 	"wx/frame.h"
 
-1651924572 source:/home/pi/github/flukeEmuWx/EmuEvCntSigGen.cpp
+1657973329 source:/home/pi/github/flukeEmuWx/EmuEvCntSigGen.cpp
 	"EmuEvCntSigGen.h"
 
-1651924572 /home/pi/github/flukeEmuWx/EmuEvCntSigGen.h
+1657973329 /home/pi/github/flukeEmuWx/EmuEvCntSigGen.h
 	<stdint.h>
 	"wx/wx.h"
 
-1651924572 source:/home/pi/github/flukeEmuWx/EmuPodProbe.cpp
-	"EmuPodProbe.h"
+1657968254 source:/home/pi/github/flukeEmuWx/EmuPodProbe.cpp
 	"wx/wx.h"
+	"EmuPodProbe.h"
 	"wiringPi.h"
 
-1651924572 /home/pi/github/flukeEmuWx/EmuPodProbe.h
+1657924491 /home/pi/github/flukeEmuWx/EmuPodProbe.h
 	<stdint.h>
 	<stdio.h>
 
-1651964260 source:/home/pi/github/flukeEmuWx/EmuPanel.cpp
+1657970532 source:/home/pi/github/flukeEmuWx/EmuPanel.cpp
+	<dirent.h>
+	<errno.h>
 	"wx/wx.h"
 	"wx/image.h"
 	<wx/sound.h>
@@ -1656,9 +1658,9 @@
 	"wxSndWrap.h"
 	<wx/dcbuffer.h>
 
-1651924572 /home/pi/github/flukeEmuWx/EmuPanelDef.h
+1657970628 /home/pi/github/flukeEmuWx/EmuPanelDef.h
 
-1651924572 /home/pi/github/flukeEmuWx/FlukeEmuHw.h
+1657916882 /home/pi/github/flukeEmuWx/FlukeEmuHw.h
 	"stdint.h"
 	"Z80/Z80.h"
 	"EmuPodProbe.h"
@@ -1666,6 +1668,7 @@
 	"EmuDispKeyb.h"
 	"EmuEvCntSigGen.h"
 	"EmuSerPort.h"
+	"ProbeBoard.h"
 
 1651925050 /home/pi/github/flukeEmuWx/Z80/Z80.h
 
@@ -1674,7 +1677,7 @@
 	<stdint.h>
 	"wx/wx.h"
 
-1651955142 /home/pi/github/flukeEmuWx/EmuSerPort.h
+1652471671 /home/pi/github/flukeEmuWx/EmuSerPort.h
 	<wx/wx.h>
 	<stdio.h>
 	<stdint.h>
@@ -1694,7 +1697,7 @@
 	"wx/dcclient.h"
 	"wx/window.h"
 
-1651958224 source:/home/pi/github/flukeEmuWx/EmuSerPort.cpp
+1652472503 source:/home/pi/github/flukeEmuWx/EmuSerPort.cpp
 	"EmuSerPort.h"
 	<termios.h>
 	<sys/ioctl.h>
@@ -1706,11 +1709,11 @@
 	<string.h>
 	<errno.h>
 
-1651964340 source:/home/pi/github/flukeEmuWx/FlukeEmuHw.cpp
+1657925391 source:/home/pi/github/flukeEmuWx/FlukeEmuHw.cpp
 	"FlukeEmuHw.h"
 	"wx/wx.h"
 
-1651924572 source:/home/pi/github/flukeEmuWx/FlukeEmuWxApp.cpp
+1654983665 source:/home/pi/github/flukeEmuWx/FlukeEmuWxApp.cpp
 	"wx_pch.h"
 	"FlukeEmuWxApp.h"
 	"FlukeEmuWxMain.h"
@@ -1764,8 +1767,21 @@
 
 1651925050 /home/pi/github/flukeEmuWx/Z80/Codes.h
 
-1651963283 source:/home/pi/github/flukeEmuWx/FlukeEmuWxMain.cpp
+1652468820 source:/home/pi/github/flukeEmuWx/FlukeEmuWxMain.cpp
 	"wx_pch.h"
 	"FlukeEmuWxMain.h"
 	"EmuPanel.h"
+
+1657964426 /home/pi/github/flukeEmuWx/ProbeBoard.h
+	"stdint.h"
+	"wx/wx.h"
+	"EmuPodProbe.h"
+	"EmuEvCntSigGen.h"
+
+1657966666 source:/home/pi/github/flukeEmuWx/ProbeBoard.cpp
+	"ProbeBoard.h"
+	"wx/wx.h"
+	<sys/ioctl.h>
+	<linux/spi/spidev.h>
+	"wiringPi.h"
 

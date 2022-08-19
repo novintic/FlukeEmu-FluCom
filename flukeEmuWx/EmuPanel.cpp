@@ -427,20 +427,26 @@ void EmuPanel::OnMouseEvent(wxMouseEvent& event)
             if(key != 255)
             {
                 m_snd.Play(1);
-                m_emuHw.m_dispKeyb.KeyPressed(key);
+//                m_emuHw.m_dispKeyb.KeyPressed(key);
                 m_KeyRectDown = keyRect;
-                if(key == KEY_HIGH)
+                if(key == KEY_HIGH_DOWN) // Key is always reported as DOWN
                 {
                     m_KeyRectHiPulse = m_KeyRectDown;
+                    if(m_PulseHikeyDown) // If state is down, change key code
+                        key = KEY_HIGH_UP;
                     m_PulseHikeyDown = !m_PulseHikeyDown;
                 }
-                if(key == KEY_LOW)
+                if(key == KEY_LOW_DOWN) // Key is always reported as DOWN
                 {
                     m_KeyRectLoPulse = m_KeyRectDown;
+                    if(m_PulseLokeyDown) // If state is down, change key code
+                        key = KEY_LOW_UP;
                     m_PulseLokeyDown = !m_PulseLokeyDown;
                 }
                 else
                     m_keyDown = true;
+
+                m_emuHw.m_dispKeyb.KeyPressed(key);
 
                 notConsumed = false;
             }

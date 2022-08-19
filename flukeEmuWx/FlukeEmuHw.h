@@ -28,6 +28,8 @@ Boston, MA 02111-1307 USA
 #include "EmuEvCntSigGen.h"
 #include "EmuSerPort.h"
 
+#include "ProbeBoard.h"
+
 typedef struct RM
 {
 	const char *name;
@@ -63,6 +65,9 @@ class flukeEmuHw : public wxThread
 
     // Event counter/sig generator
     emuEvCntSigGen m_evCntSigGen;
+    ProbeBoard m_probeBoard;
+    ProbeBoard *m_pPB;    // pointer to probeboard instance
+
     // Display/LEDs/keyboard
     emuDispKeyb m_dispKeyb;
     // IO chip
