@@ -239,7 +239,7 @@ uint8_t emuPodProbe::ReadData(uint16_t address)
 }
 
 // Overwrite for your pin mapping
-// Pin mapping for PodHat by Mirko Biry
+// Pin mapping for FluCom2,3
 #define PIA_D0 26   // Fluke 9010 nMAINSTAT OUT
 #define PIA_D1 11   // Fluke 9010 nPODSTAT  IN
 #define PIA_D2 06   // Fluke 9010 POWERFAIL IN

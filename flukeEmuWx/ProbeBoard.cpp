@@ -212,9 +212,9 @@ void ProbeBoard::setData(uint8_t *pBuf, uint32_t maxSize)
     {
         uint8_t ls = m_outMsg.levStat;
         uint8_t pia567 = 0;
-        pia567 |= ls & SPI_OUTMSG_LEVIN ? (1 << 5) : 0;
-        pia567 |= ls & SPI_OUTMSG_LEVHI ? (1 << 6) : 0;
-        pia567 |= ls & SPI_OUTMSG_LEVLO ? (1 << 7) : 0;
+        pia567 |= ls & SPI_OUTMSG_LEVIN ? (1 << 5) : 0;  // Inalid
+        pia567 |= ls & SPI_OUTMSG_LEVLO ? (1 << 6) : 0;  // GREEN/BOTTOM LED = LO
+        pia567 |= ls & SPI_OUTMSG_LEVHI ? (1 << 7) : 0;  // RED/TOP LED = Hi
         if(m_pPodProbe != NULL)
             m_pPodProbe->setLevels(pia567);
 
