@@ -331,7 +331,7 @@ void emuPodProbe::SetPI(int piSel, uint8_t OReg)
     // Probe
     if(piSel == SELPIA)
     {
-        m_pia567out = OReg & 0xE0;
+        //m_pia567out = OReg & 0xE0;
     }
 }
 
@@ -382,7 +382,7 @@ void emuPodProbe::setCx2(int xab, bool val, bool edgeUp)
     if(xab == SELPIB)
     {
         //wxLogDebug("W:CB2: %d (%d)", val, edgeUp);
-        // a hi on CB2 enables the outputs q1-q3 on U46
+        // a hi on CB2 enables the outputs q1-q3 on U46 IC[4043]
         if(val)
         {   // read back PIA_D5, PIA_D6, PIA_D7
             // the probe returns HI, LO, or tristate
@@ -403,14 +403,15 @@ void emuPodProbe::setCx2(int xab, bool val, bool edgeUp)
         {
         }
 
-        // A rising edge on CB2 latches D5,D6,D7 into U46
+        // A rising edge on CB2 latches D5,D6,D7 into U45 IC[14175]
         if(edgeUp)
         {
             // PA5 gen hi pulse
             // PA6 gen lo pulse
             // PA7 select sync/freerun
             // Signals are applied in SetPI directly
-            // m_pia567out = PIB[SELPIA] & 0xE0;
+            m_pia567out = OR[SELPIA] & 0xE0;
+            //m_pia567out = OReg & 0xE0;
             wxLogDebug("PIA567: OUT: %02x", m_pia567out);
         }
     }
