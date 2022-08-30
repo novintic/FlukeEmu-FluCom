@@ -259,6 +259,8 @@ uint8_t emuPodProbe::ReadData(uint16_t address)
 #define PIB_D6 22
 #define PIB_D7 21
 
+#define SYNC_IN 02      // GPIO 27 / PIN 13
+
 int pinMAPA[] = {PIA_D0, PIA_D1, PIA_D2, PIA_D3, PIA_D4, PIA_D5, PIA_D6, PIA_D7};
 int pinMAPB[] = {PIB_D0, PIB_D1, PIB_D2, PIB_D3, PIB_D4, PIB_D5, PIB_D6, PIB_D7};
 
@@ -271,7 +273,11 @@ int pinMAPB[] = {PIB_D0, PIB_D1, PIB_D2, PIB_D3, PIB_D4, PIB_D5, PIB_D6, PIB_D7}
 void emuPodProbe::InitEmuIO(void)
 {
 #ifdef WIRINGPI
-    wiringPiSetup () ;
+    wiringPiSetup() ;
+    pinMode(SYNC_IN, INPUT); // set sync pin to input
+    pullUpDnControl(SYNC_IN, PUD_OFF);
+    pullUpDnControl(PIA_D1, PUD_OFF);
+    pullUpDnControl(PIA_D2, PUD_OFF);
 #endif // WIRINGPI
 }
 
@@ -331,6 +337,7 @@ void emuPodProbe::SetPI(int piSel, uint8_t OReg)
     // Probe
     if(piSel == SELPIA)
     {
+        // Cannot output bits here, as CB2 might not be set
         //m_pia567out = OReg & 0xE0;
     }
 }
@@ -409,7 +416,8 @@ void emuPodProbe::setCx2(int xab, bool val, bool edgeUp)
             // PA5 gen hi pulse
             // PA6 gen lo pulse
             // PA7 select sync/freerun
-            // Signals are applied in SetPI directly
+            // Signals are applied here only, since the fluke FW
+            // makes writes to port A, without triggern CB2
             m_pia567out = OR[SELPIA] & 0xE0;
             //m_pia567out = OReg & 0xE0;
             wxLogDebug("PIA567: OUT: %02x", m_pia567out);
