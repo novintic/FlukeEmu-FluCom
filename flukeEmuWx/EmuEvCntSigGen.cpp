@@ -55,15 +55,15 @@ uint8_t emuEvCntSigGen::Read(uint16_t addr)
         m_rstCmd = 1;
         wxLogDebug("R: SIGGEN: %04x (RESET)", addr);
     }
-    else if(ioSel == 2)   // read signature hi byte
+    else if(ioSel == 2)   // read signature lo byte
+    {
+        val = m_sigGen & 0xff;
+        wxLogDebug("R: SIGGEN: %04x (SIG LO)", addr);
+    }
+    else if(ioSel == 3)    // read signature hi byte
     {
         val = m_sigGen >> 8;
         wxLogDebug("R: SIGGEN: %04x (SIG HI)", addr);
-    }
-    else if(ioSel == 3)    // read signature low byte
-    {
-        val = m_sigGen & 0xff;
-        //wxLogDebug("R: SIGGEN: %04x (SIG LO)", addr);
     }
     else
     {   // should not get here!
