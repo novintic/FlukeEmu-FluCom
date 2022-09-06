@@ -191,7 +191,7 @@ void ProbeBoard::getData(uint8_t *pBuf, uint32_t maxSize)
     // LO pulse
     pm |= pia567 & (1 << 6) ? SPI_INMSG_PULSELO : 0;
     // Snyc mode
-    pm |= pia567 & (1 << 7) ? SPI_INMSG_SYNC : 0;
+    pm |= pia567 & (1 << 7) ? 0 : SPI_INMSG_SYNC; // Meaning of this bit is inverted
     m_inMsg.pulseCfg = pm;
     if(m_pEvSigGen != NULL)
         rstCnt = m_pEvSigGen->getRstCmd();
