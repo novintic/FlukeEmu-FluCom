@@ -100,19 +100,20 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
     // LEDs
     m_LEDState = 0;
     // Probe LEDS
-    wxRect kr = GetKeyRect(KEY_HIGH_DOWN);
-    m_NativeProbeLEDHiRect.x = kr.x + kr.width/2 - LED_SIZE.x/2;
-    m_NativeProbeLEDHiRect.y = kr.y + kr.height/2 - LED_SIZE.y/2 - kr.height/4;
-    m_NativeProbeLEDHiRect.width = LED_SIZE.x;
-    m_NativeProbeLEDHiRect.height = LED_SIZE.y;
+   // wxRect kr = GetKeyRect(KEY_HIGH_DOWN);
+   // m_NativeProbeLEDHiRect.x = kr.x + kr.width/2 - LED_SIZE.x/2;
+   // m_NativeProbeLEDHiRect.y = kr.y + kr.height/2 - LED_SIZE.y/2 - kr.height/4;
+   // m_NativeProbeLEDHiRect.width = LED_SIZE.x;
+   // m_NativeProbeLEDHiRect.height = LED_SIZE.y;
 
-    kr = GetKeyRect(KEY_LOW_DOWN);
-    m_NativeProbeLEDLoRect.x = kr.x + kr.width/2 - LED_SIZE.x/2;
-    m_NativeProbeLEDLoRect.y = kr.y + kr.height/2 - LED_SIZE.y/2  - kr.height/4;
-    m_NativeProbeLEDLoRect.width = LED_SIZE.x;
-    m_NativeProbeLEDLoRect.height = LED_SIZE.y;
-    //m_NativeProbeLEDHiRect = GetKeyRect(KEY_HIGH_DOWN);
-    //m_NativeProbeLEDLoRect = GetKeyRect(KEY_LOW_DOWN);
+   // kr = GetKeyRect(KEY_LOW_DOWN);
+   // m_NativeProbeLEDLoRect.x = kr.x + kr.width/2 - LED_SIZE.x/2;
+   // m_NativeProbeLEDLoRect.y = kr.y + kr.height/2 - LED_SIZE.y/2  - kr.height/4;
+   // m_NativeProbeLEDLoRect.width = LED_SIZE.x;
+   // m_NativeProbeLEDLoRect.height = LED_SIZE.y;
+
+    m_NativeProbeLEDHiRect = PROBE_HI_LED_RECT;
+    m_NativeProbeLEDLoRect = PROBE_LO_LED_RECT;
     m_ProbeLEDHiRect = m_NativeProbeLEDHiRect;
     m_ProbeLEDLoRect = m_NativeProbeLEDLoRect;
 
@@ -207,14 +208,14 @@ void EmuPanel::OnRunEmu(wxTimerEvent& event)
             memcpy(buf, pdisp, DISP_NUMCHAR);
             buf[DISP_NUMCHAR] = 0;
             m_dispStr = wxString(buf);
-            Refresh(true, NULL); // TEST DO BETTER
+            RefreshRect(m_dispPanelRect, false);
         }
 
         if(m_emuHw.m_dispKeyb.updLed(tms))
         {
             int ledStat = m_emuHw.m_dispKeyb.GetLedStatus();
             m_LEDState = ledStat;
-            Refresh(true, NULL); // TEST DO BETTER
+            Refresh(false, NULL); // TEST DO BETTER
         }
         // Check beep sound
         if(m_emuHw.m_podProbe.beepF9010())
@@ -228,21 +229,17 @@ void EmuPanel::OnRunEmu(wxTimerEvent& event)
         bool llchange = m_ProbeLEDLoState ^ ll;
         m_ProbeLEDHiState = hl;
         m_ProbeLEDLoState = ll;
-        if(hlchange || llchange)
-        {
-            printf("Probe LEDs H:%d L:%d\n", m_ProbeLEDHiState, m_ProbeLEDLoState);
-            Refresh(true, NULL); // TEST DO BETTER
-         //   wxRect      m_ProbeLEDHiRect;
-        //wxRect      m_ProbeLEDLoRect;
-        //    RefreshRect(const wxRect& rect);
-        }
+        if(hlchange)
+            RefreshRect(m_ProbeLEDHiRect, false);
+        if(llchange)
+            RefreshRect(m_ProbeLEDLoRect, false);
     }
     // Update tape
     bool fset = m_emuHw.m_tapeUnit.getTapeFileSet();
     if(m_tapeFileSet != fset)
     {
         m_tapeFileSet = fset;
-        Refresh(true, NULL); // TEST DO BETTER
+        RefreshRect(m_TapeDriveRect, false);
     }
     // update serial port/file status
     updateSerialStatus();
@@ -261,6 +258,7 @@ void EmuPanel::OnPaint( wxPaintEvent &event )
     //wxPaintDC dc( this );
     wxAutoBufferedPaintDC dc( this );
     PrepareDC( dc );
+
     DrawBackGnd(dc);
     DrawDisplay(dc);    // Draw display
     DrawLEDS(dc);       // LEDS
@@ -330,8 +328,8 @@ void EmuPanel::DrawBackGnd(wxAutoBufferedPaintDC &dc)
         dc.SetBrush(*wxLIGHT_GREY_BRUSH);
         dc.DrawRectangle(m_bgndSide);
 
-        //#define DRAW_KEYb_GRID
-        #ifdef DRAW_KEYb_GRID
+        //#define DRAW_KEYB_GRID
+        #ifdef DRAW_KEYB_GRID
         dc.SetBrush(*wxTRANSPARENT_BRUSH);
         dc.SetPen(wxPen(wxColor(255,0,0), 1));
         wxRect kr;
@@ -707,9 +705,6 @@ void EmuPanel::DrawKeyOverlay(wxAutoBufferedPaintDC &dc)
                 keyRect.width  = m_keybCols[cix][0] - keyRect.x;
                 keyRect.y      = m_keybRows[cix][rix][0];
                 keyRect.height = m_keybRows[cix][rix][1] - m_keybRows[cix][rix][0];
-                // Cosmetics
-                keyRect.width += 5;
-                keyRect.height += 5;
                 wxRect srect = scaleRect(keyRect, m_PanelScale, m_PanelScale);
                 dc.DrawRoundedRectangle(srect, POWER_BUT_CORNR*m_PanelScale);
 
@@ -777,10 +772,6 @@ uint8_t EmuPanel::GetKey(int x, int y, wxRect* pKr)
                         pKr->width = m_keybCols[col][0] - pKr->x;
                         pKr->y = m_keybRows[col][rix][0];
                         pKr->height = m_keybRows[col][rix][1] - m_keybRows[col][rix][0];
-                        // Cosmetics
-                        pKr->width += 5;
-                        pKr->height += 5;
-
                     }
                     //wxLogDebug("KEYB COL: %d ROQ: %d -> K:%d", col, rix, key);
                 }
@@ -806,9 +797,6 @@ wxRect EmuPanel::GetKeyRect(uint8_t key)
                 keyRect.width  = m_keybCols[cix][0] - keyRect.x;
                 keyRect.y      = m_keybRows[cix][rix][0];
                 keyRect.height = m_keybRows[cix][rix][1] - m_keybRows[cix][rix][0];
-                // Cosmetics
-                keyRect.width += 5;
-                keyRect.height += 5;
                 break;
             }
         }
