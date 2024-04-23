@@ -175,7 +175,7 @@ Boston, MA 02111-1307 USA
 #define KEY_LOPUL_ACT_COLOR wxColour( 50, 250, 50)
 
 // Power button
-#define POWER_BUT_RECT      wxRect(1683, 139, 217, 60)
+#define POWER_BUT_RECT      wxRect(1681, 138, 217, 60)
 #define POWER_BUT_CORNR     10
 #define POWER_BUT_ACT_COLOR wxColour(24, 84, 250)
 
@@ -187,6 +187,9 @@ Boston, MA 02111-1307 USA
 #define LED_SIZE  wxSize(32, 16)
 #define LED_CORNR 3
 #define LEDSPOS   {wxPoint(1587, 52), wxPoint(1587, 81), wxPoint(1587, 110), wxPoint(1587, 139), wxPoint(1587, 168)}
+// Probe LEDs
+#define PROBE_HI_LED_RECT  wxRect(1742, 685, 47, 22)
+#define PROBE_LO_LED_RECT  wxRect(1792, 685, 47, 22)
 
 // Display
 #define DISPLAY_RECT    wxRect(76, 50, 1290, 110)
