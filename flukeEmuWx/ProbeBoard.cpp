@@ -165,11 +165,6 @@ uint32_t ProbeBoard::getCount(void)
     return m_outMsg.evCount;
 }
 
-uint32_t ProbeBoard::getSignature(void)
-{
-    return m_outMsg.signature;
-}
-
 void ProbeBoard::resetSigCnt(void)
 {
     m_inMsg.rstCmd |= SPI_INMSG_CMDRST;
@@ -216,8 +211,10 @@ void ProbeBoard::setData(uint8_t *pBuf, uint32_t maxSize)
         pia567 |= ls & SPI_OUTMSG_LEVLO ? (1 << 6) : 0;  // GREEN/BOTTOM LED = LO
         pia567 |= ls & SPI_OUTMSG_LEVHI ? (1 << 7) : 0;  // RED/TOP LED = Hi
         if(m_pPodProbe != NULL)
+        {
             m_pPodProbe->setLevels(pia567);
-
+            m_pPodProbe->setProbeLEDStates(ls & SPI_OUTMSG_LEDHI, ls & SPI_OUTMSG_LEDLO);
+        }
         if(m_pEvSigGen != NULL)
         {
             m_pEvSigGen->setEvCnt(m_outMsg.evCount);

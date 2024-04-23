@@ -46,10 +46,13 @@ class EmuPanel: public wxWindow
         void DrawPwrButton(wxAutoBufferedPaintDC &dc);
         void DrawTapeDrive(wxAutoBufferedPaintDC &dc);
         void DrawActiveKeys(wxAutoBufferedPaintDC &dc);
+        void DrawKeyOverlay(wxAutoBufferedPaintDC &dc);
 
         uint8_t GetKey(int x, int y, wxRect* pKr);
+        wxRect GetKeyRect(uint8_t key);
         wxRect GetDispPanelRect(void) { return m_dispPanelRect; };
-        void OnKeyEvent(wxKeyEvent& event);
+        void OnKeyEventDown(wxKeyEvent& event);
+        void OnKeyEventUp(wxKeyEvent& event);
 
         void TapeFileDialog(void);
         void SerPortDialog(void);
@@ -80,6 +83,7 @@ class EmuPanel: public wxWindow
     wxRect      m_keybRect = KEYB_RECT;
     int         m_keybCols[COLTNUM][2] = COLS;
     int         m_keybRows[KEYCOLNUM][KEYROWNUM][2] = ROWS;
+    const char* m_KeyTextMap[KEYS_TEXT_NUM] = KEYS_TEXT;
 
     int         m_asciiKmap[ASCIIKEYMAPSIZE] = {ASCIIKEYMAP};
     int         m_otherKmap[OTHERKEYMAPSIZE][2] = {OTHERKEYMAP};
@@ -89,6 +93,7 @@ class EmuPanel: public wxWindow
     bool        m_PulseHikeyDown;
     wxRect      m_KeyRectLoPulse;
     bool        m_PulseLokeyDown;
+    bool        m_ShowKeys;
 
     // Font display
     wxRect      m_dispRect = DISPLAY_RECT;
@@ -112,7 +117,13 @@ class EmuPanel: public wxWindow
     int         m_LEDState;
     wxPoint     m_LEDPos[LEDS_NUM] = LEDSPOS;
     int         m_LEDMap[LEDS_NUM] = LED_MAP;
-
+    // Probe LEDS
+    bool        m_ProbeLEDHiState;
+    bool        m_ProbeLEDLoState;
+    wxRect      m_NativeProbeLEDHiRect;
+    wxRect      m_NativeProbeLEDLoRect;
+    wxRect      m_ProbeLEDHiRect;
+    wxRect      m_ProbeLEDLoRect;
     // Power button
     wxRect      m_NativePwrRect;
     wxImage     m_pwrOff;

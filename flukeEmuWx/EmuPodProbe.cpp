@@ -131,6 +131,23 @@ bool emuPodProbe::beepF9010(void)
     return beep;
 }
 
+void emuPodProbe::setProbeLEDStates(bool hiLed, bool loLed)
+{
+    m_probeLedHi = hiLed;
+    m_probeLedLo = loLed;
+    //printf("Probe LEDs H:%d L:%d\n", hiLed, loLed);
+}
+
+bool emuPodProbe::getProbeLEDHiState(void)
+{
+    return m_probeLedHi;
+}
+
+bool emuPodProbe::getProbeLEDLoState(void)
+{
+    return m_probeLedLo;
+}
+
 // &530 proper emulation
 void emuPodProbe::setCS(bool cs0, bool cs1, bool ncs2)
 {

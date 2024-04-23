@@ -41,7 +41,8 @@ wxBEGIN_EVENT_TABLE(EmuPanel, wxWindow)
   EVT_SIZE(EmuPanel::OnResize)
   //EVT_ERASE_BACKGROUND(EmuPanel::OnEraseBackground)
   EVT_MOUSE_EVENTS(EmuPanel::OnMouseEvent)
-  EVT_KEY_DOWN(EmuPanel::OnKeyEvent)
+  EVT_KEY_DOWN(EmuPanel::OnKeyEventDown)
+  EVT_KEY_UP(EmuPanel::OnKeyEventUp)
   EVT_TIMER(RUNEMU_TIMER_ID, EmuPanel::OnRunEmu)
 wxEND_EVENT_TABLE()
 
@@ -83,6 +84,9 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
     m_keyDown = false;
     m_PulseHikeyDown = false;
     m_PulseLokeyDown = false;
+    m_KeyRectHiPulse = GetKeyRect(KEY_HIGH_DOWN);
+    m_KeyRectLoPulse = GetKeyRect(KEY_LOW_DOWN);
+    m_ShowKeys   = false;
 
     // Display
     m_dispFont = new wxFont(wxFontInfo(50).Family(wxFONTFAMILY_MODERN).Bold());
@@ -95,6 +99,22 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
     // Panel elements
     // LEDs
     m_LEDState = 0;
+    // Probe LEDS
+    wxRect kr = GetKeyRect(KEY_HIGH_DOWN);
+    m_NativeProbeLEDHiRect.x = kr.x + kr.width/2 - LED_SIZE.x/2;
+    m_NativeProbeLEDHiRect.y = kr.y + kr.height/2 - LED_SIZE.y/2 - kr.height/4;
+    m_NativeProbeLEDHiRect.width = LED_SIZE.x;
+    m_NativeProbeLEDHiRect.height = LED_SIZE.y;
+
+    kr = GetKeyRect(KEY_LOW_DOWN);
+    m_NativeProbeLEDLoRect.x = kr.x + kr.width/2 - LED_SIZE.x/2;
+    m_NativeProbeLEDLoRect.y = kr.y + kr.height/2 - LED_SIZE.y/2  - kr.height/4;
+    m_NativeProbeLEDLoRect.width = LED_SIZE.x;
+    m_NativeProbeLEDLoRect.height = LED_SIZE.y;
+    //m_NativeProbeLEDHiRect = GetKeyRect(KEY_HIGH_DOWN);
+    //m_NativeProbeLEDLoRect = GetKeyRect(KEY_LOW_DOWN);
+    m_ProbeLEDHiRect = m_NativeProbeLEDHiRect;
+    m_ProbeLEDLoRect = m_NativeProbeLEDLoRect;
 
     // Power button
     m_NativePwrRect = POWER_BUT_RECT;  // Values aligned to background image
@@ -201,6 +221,21 @@ void EmuPanel::OnRunEmu(wxTimerEvent& event)
         {
             m_snd.Play(SND_ID_BEEP);
         }
+        // Check probe LED
+        bool hl = m_emuHw.m_podProbe.getProbeLEDHiState();
+        bool ll = m_emuHw.m_podProbe.getProbeLEDLoState();
+        bool hlchange = m_ProbeLEDHiState ^ hl;
+        bool llchange = m_ProbeLEDLoState ^ ll;
+        m_ProbeLEDHiState = hl;
+        m_ProbeLEDLoState = ll;
+        if(hlchange || llchange)
+        {
+            printf("Probe LEDs H:%d L:%d\n", m_ProbeLEDHiState, m_ProbeLEDLoState);
+            Refresh(true, NULL); // TEST DO BETTER
+         //   wxRect      m_ProbeLEDHiRect;
+        //wxRect      m_ProbeLEDLoRect;
+        //    RefreshRect(const wxRect& rect);
+        }
     }
     // Update tape
     bool fset = m_emuHw.m_tapeUnit.getTapeFileSet();
@@ -232,6 +267,7 @@ void EmuPanel::OnPaint( wxPaintEvent &event )
     DrawPwrButton(dc);  // Power button
     DrawTapeDrive(dc);  // Draw tape drive
     DrawActiveKeys(dc); // Draw active keys
+    DrawKeyOverlay(dc); // Draw key overlay
 }
 
 void EmuPanel::ResizeElements(wxSize newSize)
@@ -261,6 +297,9 @@ void EmuPanel::ResizeElements(wxSize newSize)
     m_TapeDriveRect = scaleRect(m_NativeTapeDriveRect, m_PanelScale, m_TapeDriveNativeScale * m_PanelScale);
     // Disp panel
     m_dispPanelRect = scaleRect(m_NativeDispPanelRect, m_PanelScale, m_PanelScale);
+    // Probe LEDS
+    m_ProbeLEDHiRect = scaleRect(m_NativeProbeLEDHiRect, m_PanelScale, m_PanelScale);
+    m_ProbeLEDLoRect = scaleRect(m_NativeProbeLEDLoRect, m_PanelScale, m_PanelScale);
 }
 
 void EmuPanel::OnResize(wxSizeEvent& event)
@@ -360,7 +399,7 @@ void EmuPanel::OnEraseBackground(wxEraseEvent& event)
 }
 */
 
-void EmuPanel::OnKeyEvent(wxKeyEvent& event)
+void EmuPanel::OnKeyEventDown(wxKeyEvent& event)
 {
     int kf = KEY_NOKEY, k = event.GetKeyCode();
     // check ASCII codes
@@ -379,12 +418,44 @@ void EmuPanel::OnKeyEvent(wxKeyEvent& event)
     if(kf != KEY_NOKEY)
     {
         m_snd.Play(1);
+        // Handle toggle keys
+        if(kf == KEY_HIGH_DOWN) // Key is always reported as DOWN
+        {
+            if(m_PulseHikeyDown) // If state is down, change key code
+                kf = KEY_HIGH_UP;
+            m_PulseHikeyDown = !m_PulseHikeyDown;
+        }
+        if(kf == KEY_LOW_DOWN) // Key is always reported as DOWN
+        {
+            if(m_PulseLokeyDown) // If state is down, change key code
+                kf = KEY_LOW_UP;
+            m_PulseLokeyDown = !m_PulseLokeyDown;
+        }
+
         m_emuHw.m_dispKeyb.KeyPressed(kf);
         //notConsumed = false;
     }
     else
         event.Skip();
-    wxLogDebug("KEY: %d -> %d", k, kf );
+
+    int m = event.GetModifiers();
+    if((m & wxMOD_ALT) > 0)
+    {
+        m_ShowKeys = true;
+        //wxLogDebug("KEYD: ALT ");
+    }
+    wxLogDebug("KEYD: %d -> %d", k, kf );
+}
+
+void EmuPanel::OnKeyEventUp(wxKeyEvent& event)
+{
+    int m = event.GetModifiers();
+    if((m & wxMOD_ALT) == 0)
+    {
+        m_ShowKeys = false;
+        //wxLogDebug("KEYUP: ALT ");
+    }
+    //wxLogDebug("KEYUP: %d", m);
 }
 
 void EmuPanel::OnMouseEvent(wxMouseEvent& event)
@@ -427,18 +498,15 @@ void EmuPanel::OnMouseEvent(wxMouseEvent& event)
             if(key != 255)
             {
                 m_snd.Play(1);
-//                m_emuHw.m_dispKeyb.KeyPressed(key);
                 m_KeyRectDown = keyRect;
                 if(key == KEY_HIGH_DOWN) // Key is always reported as DOWN
                 {
-                    m_KeyRectHiPulse = m_KeyRectDown;
                     if(m_PulseHikeyDown) // If state is down, change key code
                         key = KEY_HIGH_UP;
                     m_PulseHikeyDown = !m_PulseHikeyDown;
                 }
                 if(key == KEY_LOW_DOWN) // Key is always reported as DOWN
                 {
-                    m_KeyRectLoPulse = m_KeyRectDown;
                     if(m_PulseLokeyDown) // If state is down, change key code
                         key = KEY_LOW_UP;
                     m_PulseLokeyDown = !m_PulseLokeyDown;
@@ -503,7 +571,10 @@ void EmuPanel::DrawDisplay(wxAutoBufferedPaintDC &dc)
         m_dispFont->SetPixelSize(wxSize(m_dispRect.width/DISP_NUMCHAR*m_PanelScale, m_dispRect.height*m_PanelScale));
         dc.SetFont(*m_dispFont);
         dc.SetTextForeground (wxColour(DISPLAY_COLOR));
-        dc.DrawText(m_dispStr, m_dispRect.x*m_PanelScale, m_dispRect.y*m_PanelScale);
+        wxSize ds = dc.GetTextExtent(m_dispStr);
+        wxCoord dx = m_dispRect.x*m_PanelScale;
+        wxCoord dy = (m_dispRect.y + m_dispRect.height/2)*m_PanelScale - ds.y/2;
+        dc.DrawText(m_dispStr, dx, dy);
     }
 }
 
@@ -520,6 +591,18 @@ void EmuPanel::DrawLEDS(wxAutoBufferedPaintDC &dc)
                 dc.SetBrush(*wxBLACK_BRUSH);
             dc.DrawRoundedRectangle(m_LEDPos[lix]*m_PanelScale, LED_SIZE*m_PanelScale, LED_CORNR*m_PanelScale);
         }
+        // Probe LEDS
+        if(m_ProbeLEDHiState)
+            dc.SetBrush(*wxRED_BRUSH);
+        else
+            dc.SetBrush(*wxBLACK_BRUSH);
+        dc.DrawRoundedRectangle(m_ProbeLEDHiRect, LED_CORNR*m_PanelScale);
+
+        if(m_ProbeLEDLoState)
+            dc.SetBrush(*wxGREEN_BRUSH);
+        else
+            dc.SetBrush(*wxBLACK_BRUSH);
+        dc.DrawRoundedRectangle(m_ProbeLEDLoRect, LED_CORNR*m_PanelScale);
     }
 }
 
@@ -577,10 +660,10 @@ void EmuPanel::DrawTapeDrive(wxAutoBufferedPaintDC &dc)
 
 void EmuPanel::DrawActiveKeys(wxAutoBufferedPaintDC &dc)
 {
+    dc.SetBrush(*wxTRANSPARENT_BRUSH);
+    int pw = 5*m_PanelScale < 1 ? 1 : 10*m_PanelScale;
     if(m_keyDown)
     {
-        dc.SetBrush(*wxTRANSPARENT_BRUSH);
-        int pw = 5*m_PanelScale < 1 ? 1 : 10*m_PanelScale;
         wxRect srect = scaleRect(m_KeyRectDown, m_PanelScale, m_PanelScale);
         wxPen penOn = wxPen(KEY_ACT_COLOR, pw);
         dc.SetPen(penOn);
@@ -589,8 +672,6 @@ void EmuPanel::DrawActiveKeys(wxAutoBufferedPaintDC &dc)
     // Pulse hi  key
     if(m_PulseHikeyDown)
     {
-        dc.SetBrush(*wxTRANSPARENT_BRUSH);
-        int pw = 5*m_PanelScale < 1 ? 1 : 10*m_PanelScale;
         wxRect srect = scaleRect(m_KeyRectHiPulse, m_PanelScale, m_PanelScale);
         dc.SetPen(wxPen(KEY_HIPUL_ACT_COLOR, pw));
         dc.DrawRoundedRectangle(srect, POWER_BUT_CORNR*m_PanelScale);
@@ -598,11 +679,50 @@ void EmuPanel::DrawActiveKeys(wxAutoBufferedPaintDC &dc)
     // Pulse Lo  key
     if(m_PulseLokeyDown)
     {
-        dc.SetBrush(*wxTRANSPARENT_BRUSH);
-        int pw = 5*m_PanelScale < 1 ? 1 : 10*m_PanelScale;
         wxRect srect = scaleRect(m_KeyRectLoPulse, m_PanelScale, m_PanelScale);
         dc.SetPen(wxPen(KEY_LOPUL_ACT_COLOR, pw));
         dc.DrawRoundedRectangle(srect, POWER_BUT_CORNR*m_PanelScale);
+    }
+}
+
+void EmuPanel::DrawKeyOverlay(wxAutoBufferedPaintDC &dc)
+{
+    if(!m_ShowKeys)
+        return;
+
+    dc.SetBrush(*wxWHITE_BRUSH);
+    int pw = 5*m_PanelScale < 1 ? 1 : 10*m_PanelScale;
+    dc.SetPen(wxPen(wxColour(150, 150, 150), pw));
+    dc.SetTextForeground (wxColour(TAPETEXT_COLOR));
+
+    for(int cix = 0; cix < KEYCOLNUM; cix++)
+    {
+        for(int rix = 0; rix < KEYROWNUM; rix++)
+        {
+            int key = m_keyMap[cix][rix];
+            if(key != KEY_NOKEY)
+            {
+                wxRect keyRect = {0,0,0,0};
+                keyRect.x      = cix == 0 ? KEYBBEGX : m_keybCols[cix-1][1];
+                keyRect.width  = m_keybCols[cix][0] - keyRect.x;
+                keyRect.y      = m_keybRows[cix][rix][0];
+                keyRect.height = m_keybRows[cix][rix][1] - m_keybRows[cix][rix][0];
+                // Cosmetics
+                keyRect.width += 5;
+                keyRect.height += 5;
+                wxRect srect = scaleRect(keyRect, m_PanelScale, m_PanelScale);
+                dc.DrawRoundedRectangle(srect, POWER_BUT_CORNR*m_PanelScale);
+
+                wxString ks = key < KEYS_TEXT_NUM ? m_KeyTextMap[key] : "";
+                if(ks.length() > 0)
+                {
+                    int ppch = ks.Length() == 1 ? srect.width*0.9 : srect.width/ks.Length()*1.8;
+                    m_tapeFont->SetPixelSize(wxSize(0, ppch));
+                    dc.SetFont(*m_tapeFont);
+                    dc.DrawLabel(ks, srect, wxALIGN_CENTER, -1);
+                }
+            }
+        }
     }
 }
 
@@ -657,6 +777,10 @@ uint8_t EmuPanel::GetKey(int x, int y, wxRect* pKr)
                         pKr->width = m_keybCols[col][0] - pKr->x;
                         pKr->y = m_keybRows[col][rix][0];
                         pKr->height = m_keybRows[col][rix][1] - m_keybRows[col][rix][0];
+                        // Cosmetics
+                        pKr->width += 5;
+                        pKr->height += 5;
+
                     }
                     //wxLogDebug("KEYB COL: %d ROQ: %d -> K:%d", col, rix, key);
                 }
@@ -666,6 +790,33 @@ uint8_t EmuPanel::GetKey(int x, int y, wxRect* pKr)
     return key;
 }
 
+wxRect EmuPanel::GetKeyRect(uint8_t key)
+{
+    // search key in map
+    bool keyFound = false;
+    wxRect keyRect = {0,0,0,0};
+    for(int cix = 0; cix < KEYCOLNUM; cix++)
+    {
+        for(int rix = 0; rix < KEYROWNUM; rix++)
+        {
+            keyFound = (key == m_keyMap[cix][rix]);
+            if(keyFound)
+            {
+                keyRect.x      = cix == 0 ? KEYBBEGX : m_keybCols[cix-1][1];
+                keyRect.width  = m_keybCols[cix][0] - keyRect.x;
+                keyRect.y      = m_keybRows[cix][rix][0];
+                keyRect.height = m_keybRows[cix][rix][1] - m_keybRows[cix][rix][0];
+                // Cosmetics
+                keyRect.width += 5;
+                keyRect.height += 5;
+                break;
+            }
+        }
+        if(keyFound)
+            break;
+    }
+    return keyRect;
+}
 
 void EmuPanel::TapeFileDialog(void)
 {
