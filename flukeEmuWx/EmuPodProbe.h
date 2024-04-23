@@ -33,6 +33,9 @@ class emuPodProbe
         uint8_t ReadF9010(uint16_t address);
         void beeper(bool trig);
         bool beepF9010(void);
+        bool getProbeLEDHiState(void);
+        bool getProbeLEDLoState(void);
+        void setProbeLEDStates(bool hiLed, bool loLed);
 
         void setCS(bool cs0, bool cs1, bool ncs2);
         void setRS(bool rs0, bool rs1);
@@ -84,6 +87,8 @@ class emuPodProbe
         // F9010A stuff (move to upper class)
         bool m_beepTrig;
         bool m_beepTrigLast;
+        bool m_probeLedHi;
+        bool m_probeLedLo;
 
         // Probe board
         uint8_t m_pia567in;     // Probe levels

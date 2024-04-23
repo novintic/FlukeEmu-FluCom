@@ -51,6 +51,9 @@ typedef struct
 #define SPI_OUTMSG_LEVLO   0x02
 #define SPI_OUTMSG_LEVIN   0x04
 
+#define SPI_OUTMSG_LEDHI   0x10
+#define SPI_OUTMSG_LEDLO   0x20
+
 // SPI in register for comm with emulator
 typedef struct
 {

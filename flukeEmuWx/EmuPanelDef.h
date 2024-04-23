@@ -118,6 +118,17 @@ Boston, MA 02111-1307 USA
 
 #define LED_MAP {LED_MORE, LED_LOOPING, LED_STOPPED, LED_PROGRAMMING, LED_EXECUTING}
 
+// Text for keys
+#define KEYS_TEXT {\
+"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",   /*  0 -  9*/ \
+"A", "B", "C", "D", "E", "F", "(", "*", "%", "#",   /* 10 - 19*/ \
+"\\","\"","$", "/", "F2","F4","Left", "Right", "Enter", "ESC",    /* 20 - 29*/ \
+"' '", "G", "H", "L", "M", "Q", "R", "V", ";", ",",   /* 30 - 39*/ \
+"W", "@", "I", "T", "U", "N", "O", "P", "X", "=",     /* 40 - 49*/ \
+"Y", "<", "Z", ">", "-", "J", "+", "?", "INS","DEL",  /* 50 - 59*/ \
+"HOME", ".", "S", "K", "PG\nUP",  "",  "PG\nDOWN",  "",  "",  ""}    /* 60 - 69*/
+#define KEYS_TEXT_NUM   70
+
 // Defines for EmuPanel
 
 // New look
@@ -243,8 +254,9 @@ Boston, MA 02111-1307 USA
  {WXK_F10, KEY_RAM_VIEW}, /*24*/ \
  {WXK_F11, KEY_ROM_VIEW}, /*25*/ \
  {WXK_F12, KEY_IO_VIEW}, /*26*/ \
+ {WXK_NUMPAD_ENTER, KEY_ENTER_YES}, 	/*27*/ \
 
-#define OTHERKEYMAPSIZE 27
+#define OTHERKEYMAPSIZE 28
 
 
 #endif // EMUPANELDEF_H_INCLUDED
