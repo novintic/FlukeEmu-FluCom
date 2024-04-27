@@ -20,7 +20,11 @@ Boston, MA 02111-1307 USA
 #include <wx/wx.h>
 #include <wx/sound.h>
 
-//#define USE_WX_SOUND      // disable to use pulse audio
+#define USE_WX_SOUND      // disable to use pulse audio
+
+// wxSound needs SDL dev linraries installed, when building wxWidgets
+// sudo apt-get install libsdl2-dev
+// Then rebuild wxWidgets (go to wxwidgest build-gtk, run configure --with-sdl, make)
 
 
 #ifndef USE_WX_SOUND
@@ -49,7 +53,8 @@ public:
 
     void init(void);
     int Load(int id, wxString fname);
-    bool Play(int id);
+    bool Play(int id, bool loop=false);
+    void Stop(int id);
 
     bool openPACon(void);
     wxThread::ExitCode Entry();

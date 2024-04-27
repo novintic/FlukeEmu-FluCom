@@ -106,19 +106,19 @@ FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title, bool ful
     fileMenu->Append(idMenuQuit, _("&Quit\tAlt-F4"), _("Quit FlukeEmuWx"));
     mbar->Append(fileMenu, _("&File"));
     // Settings menu
-    wxMenu* settingsMenu = new wxMenu(_T(""));
-    settingsMenu->Append(idMenuFullScreen, _("&Fullscreen\tF5"), _("Switch to fullscreen"));
-    settingsMenu->Append(idMenuTapeFile, _("&Tape file"), _("Set tape file"));
+    m_settingsMenu = new wxMenu(_T(""));
+    m_settingsMenu->Append(idMenuFullScreen, _("&Fullscreen\tF5"), _("Switch to fullscreen"));
+    m_settingsMenu->Append(idMenuTapeFile, _("&Tape file"), _("Set tape file"));
     // serial port menu
     wxMenu* serPortMenu = new wxMenu(_T(""));
     serPortMenu->Append(idMenuSerialPortOpts, _("&Set port"), _("Serial port settings"));
     serPortMenu->Append(idMenuSerialPortInFile, _("&Send file"), _("Send file to emulator"));
     serPortMenu->Append(idMenuSerialPortOutFile, _("&Receive file"), _("Receive file from emulator"));
     // attach popup menu
-    settingsMenu->Append(idMenuSerialPort, _("&Serial port"), serPortMenu, _("Serial port options"));
+    m_settingsMenu->Append(idMenuSerialPort, _("&Serial port"), serPortMenu, _("Serial port options"));
     //settingsMenu->Append(idMenuSerialPort, _("&Serial Port"), _("Serial Port"));
 
-    mbar->Append(settingsMenu, _("&Settings"));
+    mbar->Append(m_settingsMenu, _("&Settings"));
     // Help menu
     wxMenu* helpMenu = new wxMenu(_T(""));
     helpMenu->Append(idMenuAbout, _("&About\tF1"), _("Show info about FlukeEmuWx"));
@@ -209,6 +209,26 @@ void FlukeEmuWxFrame::OnMouseEvent(wxMouseEvent& event)
             PopupMenu(&menu, event.GetPosition());
             notConsumed = false;
         }
+        // Check settings key
+        dp = m_Emu->GetKeyEmuSettingsRect();
+        if(dp.Contains(event.GetPosition()))
+        {
+            // Show popupmenu at position
+            wxMenu menu(wxT("Settings"));
+            menu.Append(idMenuFullScreen, wxT("&Enter/Exit\tF5"));
+            menu.Append(idMenuTapeFile, _("&Tape file"), _("Set tape file"));
+            // serial port menu
+            wxMenu* serPortMenu = new wxMenu(_T(""));
+            serPortMenu->Append(idMenuSerialPortOpts, _("&Set port"), _("Serial port settings"));
+            serPortMenu->Append(idMenuSerialPortInFile, _("&Send file"), _("Send file to emulator"));
+            serPortMenu->Append(idMenuSerialPortOutFile, _("&Receive file"), _("Receive file from emulator"));
+            // attach popup menu
+            menu.Append(idMenuSerialPort, _("&Serial port"), serPortMenu, _("Serial port options"));
+
+            PopupMenu(&menu, event.GetPosition());
+            notConsumed = false;
+        }
+        //m_KeyRectEmuSettings
     }
 
     if(notConsumed)

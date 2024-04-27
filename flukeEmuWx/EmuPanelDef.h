@@ -89,10 +89,14 @@ Boston, MA 02111-1307 USA
 #define KEY_LOW_DOWN      66
 #define KEY_LOW_UP        67
 
+#define KEY_EMU_BASE      128
+#define KEY_EMU_ALPHAKEYS 128
+#define KEY_EMU_SETTINGS  129
+
 #define KEY_NOKEY         255
 
-#define ROW00KEYS   {KEY_LEARN,    KEY_RAM_VIEW,   KEY_NOKEY,      KEY_AUTO,         KEY_BUS_TEST,      KEY_ROM_TEST}
-#define ROW01KEYS   {KEY_IO_VIEW,  KEY_ROM_VIEW,   KEY_NOKEY,      KEY_RAMLONG_TEST, KEY_RAMSHORT_TEST, KEY_IO_TEST}
+#define ROW00KEYS   {KEY_LEARN,    KEY_RAM_VIEW,   KEY_EMU_ALPHAKEYS,KEY_AUTO,         KEY_BUS_TEST,      KEY_ROM_TEST}
+#define ROW01KEYS   {KEY_IO_VIEW,  KEY_ROM_VIEW,   KEY_EMU_SETTINGS,     KEY_RAMLONG_TEST, KEY_RAMSHORT_TEST, KEY_IO_TEST}
 #define ROW02KEYS   {KEY_NOKEY,    KEY_C,          KEY_8,          KEY_4,            KEY_0,             KEY_ENTER_YES}
 #define ROW03KEYS   {KEY_NOKEY,    KEY_D,          KEY_9,          KEY_5,            KEY_1,             KEY_CLEAR_NO}
 #define ROW04KEYS   {KEY_NOKEY,    KEY_E,          KEY_A,          KEY_6,            KEY_2,             KEY_PRIOR}
@@ -119,15 +123,26 @@ Boston, MA 02111-1307 USA
 #define LED_MAP {LED_MORE, LED_LOOPING, LED_STOPPED, LED_PROGRAMMING, LED_EXECUTING}
 
 // Text for keys
-#define KEYS_TEXT {\
-"0", "1", "2", "3", "4", "5", "6", "7", "8", "9",   /*  0 -  9*/ \
-"A", "B", "C", "D", "E", "F", "(", "*", "%", "#",   /* 10 - 19*/ \
-"\\","\"","$", "/", "F2","F4","Left", "Right", "Enter", "ESC",    /* 20 - 29*/ \
+#define APLPHA_KEYS_TEXT {\
+"",  "",  "",  "",  "",  "",  "",  "",  "",  "",    /*  0 -  9, No overlay*/\
+"",  "",  "",  "",  "",  "",  "|", "*", "%", "#",   /* 10 - 19*/ \
+"\\","\"","$", "/", "",  "",  "",  "",  "",  "",    /* 20 - 29*/ \
+"' '", "G", "H", "L", "M", "Q", "R", "V", ";", ",", /* 30 - 39*/ \
+"W", "@", "I", "T", "U", "N", "O", "P", "X", "=",   /* 40 - 49*/ \
+"Y", "<", "Z", ">", "-", "J", "+", "?", "",  "",    /* 50 - 59*/ \
+"",  ".", "S", "K", "",  "",  "",  "",  "",  ""}    /* 60 - 69*/
+#define APLHA_KEYS_TEXT_NUM   70
+
+// Text for keys board mapping
+#define KEYBMAP_TEXT {\
+"",  "",  "",  "",  "",  "",  "",  "",  "",  "",    /*  0 -  9, No overlay*/\
+"",  "",  "",  "",  "",  "",  "|\nF9", "*\nF10", "%\nF12", "#\nF11",   /* 10 - 19*/ \
+"\\\nF8","\"\nF1","$\nF3", "/\nF7", "F2","F4","Left", "Right", "Enter", "ESC",    /* 20 - 29*/ \
 "' '", "G", "H", "L", "M", "Q", "R", "V", ";", ",",   /* 30 - 39*/ \
 "W", "@", "I", "T", "U", "N", "O", "P", "X", "=",     /* 40 - 49*/ \
 "Y", "<", "Z", ">", "-", "J", "+", "?", "INS","DEL",  /* 50 - 59*/ \
 "HOME", ".", "S", "K", "PG\nUP",  "",  "PG\nDOWN",  "",  "",  ""}    /* 60 - 69*/
-#define KEYS_TEXT_NUM   70
+#define KEYBMAP_NUM   70
 
 // Defines for EmuPanel
 
@@ -188,8 +203,8 @@ Boston, MA 02111-1307 USA
 #define LED_CORNR 3
 #define LEDSPOS   {wxPoint(1587, 52), wxPoint(1587, 81), wxPoint(1587, 110), wxPoint(1587, 139), wxPoint(1587, 168)}
 // Probe LEDs
-#define PROBE_HI_LED_RECT  wxRect(1742, 685, 47, 22)
-#define PROBE_LO_LED_RECT  wxRect(1792, 685, 47, 22)
+#define PROBE_HI_LED_RECT  wxRect(1792, 685, 47, 22)
+#define PROBE_LO_LED_RECT  wxRect(1742, 685, 47, 22)
 
 // Display
 #define DISPLAY_RECT    wxRect(76, 50, 1290, 110)
