@@ -159,7 +159,7 @@ int wxSndWrap::Load(int id, wxString fname)
 }
 
 
-bool wxSndWrap::Play(int id)
+bool wxSndWrap::Play(int id, bool loop)
 {
     if(m_paConnected)
     {
@@ -168,7 +168,7 @@ bool wxSndWrap::Play(int id)
             wxLogDebug("WAV: Playing sample %d", id);
             wxLongLong wxTmsS = wxGetLocalTimeMillis();
 #ifdef USE_WX_SOUND
-            m_samp[id].wxs->Play();
+            m_samp[id].wxs->Play(wxSOUND_ASYNC | (loop ? wxSOUND_LOOP : 0) );
 #else
             pa_simple_write(m_pPas, m_samp[id].sndDataPtr, m_samp[id].sndDataSize, NULL);
 #endif
@@ -184,5 +184,10 @@ bool wxSndWrap::Play(int id)
     return 0;
 }
 
-
+void wxSndWrap::Stop(int id)
+{
+#ifdef USE_WX_SOUND
+     m_samp[id].wxs->Stop();
+#endif
+}
 

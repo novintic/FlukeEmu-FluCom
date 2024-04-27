@@ -51,6 +51,7 @@ class EmuPanel: public wxWindow
         uint8_t GetKey(int x, int y, wxRect* pKr);
         wxRect GetKeyRect(uint8_t key);
         wxRect GetDispPanelRect(void) { return m_dispPanelRect; };
+        wxRect GetKeyEmuSettingsRect(void) { return m_KeyRectEmuSettings; };
         void OnKeyEventDown(wxKeyEvent& event);
         void OnKeyEventUp(wxKeyEvent& event);
 
@@ -83,7 +84,8 @@ class EmuPanel: public wxWindow
     wxRect      m_keybRect = KEYB_RECT;
     int         m_keybCols[COLTNUM][2] = COLS;
     int         m_keybRows[KEYCOLNUM][KEYROWNUM][2] = ROWS;
-    const char* m_KeyTextMap[KEYS_TEXT_NUM] = KEYS_TEXT;
+    const char* m_KeyTextMap[APLHA_KEYS_TEXT_NUM] = APLPHA_KEYS_TEXT;
+    const char* m_KeyKeybMap[KEYBMAP_NUM] = KEYBMAP_TEXT;
 
     int         m_asciiKmap[ASCIIKEYMAPSIZE] = {ASCIIKEYMAP};
     int         m_otherKmap[OTHERKEYMAPSIZE][2] = {OTHERKEYMAP};
@@ -93,7 +95,12 @@ class EmuPanel: public wxWindow
     bool        m_PulseHikeyDown;
     wxRect      m_KeyRectLoPulse;
     bool        m_PulseLokeyDown;
+
     bool        m_ShowKeys;
+    bool        m_ShowAlphaKeys;
+    wxRect      m_KeyRectAplhaKeys;
+    wxRect      m_KeyRectEmuSettings;
+    wxRect      m_NativeKeyRectEmuSettings;
 
     // Font display
     wxRect      m_dispRect = DISPLAY_RECT;

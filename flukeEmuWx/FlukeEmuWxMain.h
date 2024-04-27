@@ -32,6 +32,7 @@ class FlukeEmuWxFrame: public wxFrame
         bool      m_fullScreen;
         wxString  m_portName;
         wxString  m_tapeFile;
+        wxMenu*   m_settingsMenu;
 
         enum
         {

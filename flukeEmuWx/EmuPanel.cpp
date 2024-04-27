@@ -32,6 +32,9 @@ Boston, MA 02111-1307 USA
 #define SND_ID_POWON2    3
 #define SND_ID_POWOFF1   4
 #define SND_ID_POWOFF2   5
+#define SND_ID_PROBELO   6
+#define SND_ID_PROBEHI   7
+#define SND_ID_PROBEHILO 8
 
 
 wxIMPLEMENT_CLASS(EmuPanel, wxWindow);
@@ -86,7 +89,12 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
     m_PulseLokeyDown = false;
     m_KeyRectHiPulse = GetKeyRect(KEY_HIGH_DOWN);
     m_KeyRectLoPulse = GetKeyRect(KEY_LOW_DOWN);
+    m_KeyRectAplhaKeys = GetKeyRect(KEY_EMU_ALPHAKEYS);
+    m_ShowAlphaKeys   = false;
     m_ShowKeys   = false;
+
+    m_NativeKeyRectEmuSettings = GetKeyRect(KEY_EMU_SETTINGS);
+    m_KeyRectEmuSettings =  m_NativeKeyRectEmuSettings;
 
     // Display
     m_dispFont = new wxFont(wxFontInfo(50).Family(wxFONTFAMILY_MODERN).Bold());
@@ -123,7 +131,7 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
     m_PwrRect   = m_NativePwrRect;
     m_PwrState  = false;
     m_PwrStateLast = false;
-    m_PwrButDown= false;
+    m_PwrButDown = false;
 
     // tape drive
     m_NativeTapeDriveRect = TAPEDRIVE_RECT;  // Values aligned to background image
@@ -148,6 +156,10 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
     m_snd.Load(SND_ID_POWON2, "media/pwr_offon2.wav");
     m_snd.Load(SND_ID_POWOFF1, "media/pwr_onoff1.wav");
     m_snd.Load(SND_ID_POWOFF2, "media/pwr_onoff2.wav");
+
+    m_snd.Load(SND_ID_PROBELO, "media/low.wav");
+    m_snd.Load(SND_ID_PROBEHI, "media/high.wav");
+    m_snd.Load(SND_ID_PROBEHILO, "media/hilo.wav");
 
     // Set initial window size
     SetBackgroundStyle(wxBG_STYLE_PAINT);
@@ -233,6 +245,19 @@ void EmuPanel::OnRunEmu(wxTimerEvent& event)
             RefreshRect(m_ProbeLEDHiRect, false);
         if(llchange)
             RefreshRect(m_ProbeLEDLoRect, false);
+
+        // Sound handling
+        if(hlchange || llchange)
+        {
+            if(m_ProbeLEDHiState && m_ProbeLEDLoState)
+                m_snd.Play(SND_ID_PROBEHILO, true);
+            else if(m_ProbeLEDHiState)
+                m_snd.Play(SND_ID_PROBEHI, true);
+            else if(m_ProbeLEDLoState)
+                m_snd.Play(SND_ID_PROBELO, true);
+            else
+                m_snd.Stop(SND_ID_PROBELO); // ID doesn't matter
+        }
     }
     // Update tape
     bool fset = m_emuHw.m_tapeUnit.getTapeFileSet();
@@ -291,13 +316,16 @@ void EmuPanel::ResizeElements(wxSize newSize)
 
     // Power button
     m_PwrRect = scaleRect(m_NativePwrRect, m_PanelScale, m_pwrNativeScale * m_PanelScale);
-    // Tapedrivr
+    // Tapedrive
     m_TapeDriveRect = scaleRect(m_NativeTapeDriveRect, m_PanelScale, m_TapeDriveNativeScale * m_PanelScale);
     // Disp panel
     m_dispPanelRect = scaleRect(m_NativeDispPanelRect, m_PanelScale, m_PanelScale);
     // Probe LEDS
     m_ProbeLEDHiRect = scaleRect(m_NativeProbeLEDHiRect, m_PanelScale, m_PanelScale);
     m_ProbeLEDLoRect = scaleRect(m_NativeProbeLEDLoRect, m_PanelScale, m_PanelScale);
+    // emu settings
+    m_KeyRectEmuSettings =  scaleRect(m_NativeKeyRectEmuSettings, m_PanelScale, m_PanelScale);
+
 }
 
 void EmuPanel::OnResize(wxSizeEvent& event)
@@ -440,6 +468,7 @@ void EmuPanel::OnKeyEventDown(wxKeyEvent& event)
     if((m & wxMOD_ALT) > 0)
     {
         m_ShowKeys = true;
+        Refresh(true, NULL);
         //wxLogDebug("KEYD: ALT ");
     }
     wxLogDebug("KEYD: %d -> %d", k, kf );
@@ -451,6 +480,7 @@ void EmuPanel::OnKeyEventUp(wxKeyEvent& event)
     if((m & wxMOD_ALT) == 0)
     {
         m_ShowKeys = false;
+        Refresh(true, NULL);
         //wxLogDebug("KEYUP: ALT ");
     }
     //wxLogDebug("KEYUP: %d", m);
@@ -509,10 +539,16 @@ void EmuPanel::OnMouseEvent(wxMouseEvent& event)
                         key = KEY_LOW_UP;
                     m_PulseLokeyDown = !m_PulseLokeyDown;
                 }
+                if(key == KEY_EMU_ALPHAKEYS)
+                {
+                    m_ShowAlphaKeys = !m_ShowAlphaKeys;
+                    Refresh(true, NULL);
+                }
                 else
                     m_keyDown = true;
 
-                m_emuHw.m_dispKeyb.KeyPressed(key);
+                if(key < KEY_EMU_BASE)
+                    m_emuHw.m_dispKeyb.KeyPressed(key);
 
                 notConsumed = false;
             }
@@ -535,8 +571,7 @@ void EmuPanel::OnMouseEvent(wxMouseEvent& event)
                 m_emuHw.execCtrl(EMU_PAUSE);
                 m_snd.Play(SND_ID_POWOFF2);
             }
-            Refresh(true, NULL); // TEST DO BETTER
-            Refresh(false, &m_PwrRect);
+            Refresh(true, NULL); // need full refresh
             m_PwrButDown = false;
             wxLogDebug("PWR: %s\n", m_PwrState ? "on":"off");
             notConsumed = false;
@@ -681,11 +716,18 @@ void EmuPanel::DrawActiveKeys(wxAutoBufferedPaintDC &dc)
         dc.SetPen(wxPen(KEY_LOPUL_ACT_COLOR, pw));
         dc.DrawRoundedRectangle(srect, POWER_BUT_CORNR*m_PanelScale);
     }
+    // Alpha key
+    if(m_ShowAlphaKeys)
+    {
+        wxRect srect = scaleRect(m_KeyRectAplhaKeys, m_PanelScale, m_PanelScale);
+        dc.SetPen(wxPen(KEY_ACT_COLOR, pw));
+        dc.DrawRoundedRectangle(srect, POWER_BUT_CORNR*m_PanelScale);
+    }
 }
 
 void EmuPanel::DrawKeyOverlay(wxAutoBufferedPaintDC &dc)
 {
-    if(!m_ShowKeys)
+    if(!m_ShowKeys && !m_ShowAlphaKeys)
         return;
 
     dc.SetBrush(*wxWHITE_BRUSH);
@@ -697,8 +739,14 @@ void EmuPanel::DrawKeyOverlay(wxAutoBufferedPaintDC &dc)
     {
         for(int rix = 0; rix < KEYROWNUM; rix++)
         {
+            wxString ks;
             int key = m_keyMap[cix][rix];
-            if(key != KEY_NOKEY)
+            if(m_ShowKeys) // allow alt key to override alpha keys
+                ks = key < KEYBMAP_NUM ? m_KeyKeybMap[key] : "";
+            else
+                ks = key < APLHA_KEYS_TEXT_NUM ? m_KeyTextMap[key] : "";
+
+            if(ks.length() > 0)
             {
                 wxRect keyRect = {0,0,0,0};
                 keyRect.x      = cix == 0 ? KEYBBEGX : m_keybCols[cix-1][1];
@@ -708,14 +756,10 @@ void EmuPanel::DrawKeyOverlay(wxAutoBufferedPaintDC &dc)
                 wxRect srect = scaleRect(keyRect, m_PanelScale, m_PanelScale);
                 dc.DrawRoundedRectangle(srect, POWER_BUT_CORNR*m_PanelScale);
 
-                wxString ks = key < KEYS_TEXT_NUM ? m_KeyTextMap[key] : "";
-                if(ks.length() > 0)
-                {
-                    int ppch = ks.Length() == 1 ? srect.width*0.9 : srect.width/ks.Length()*1.8;
-                    m_tapeFont->SetPixelSize(wxSize(0, ppch));
-                    dc.SetFont(*m_tapeFont);
-                    dc.DrawLabel(ks, srect, wxALIGN_CENTER, -1);
-                }
+                int ppch = ks.Length() == 1 ? srect.width*0.9 : srect.width/ks.Length()*1.8;
+                m_tapeFont->SetPixelSize(wxSize(0, ppch));
+                dc.SetFont(*m_tapeFont);
+                dc.DrawLabel(ks, srect, wxALIGN_CENTER, -1);
             }
         }
     }
