@@ -1,0 +1,13 @@
+Comment,Designator,Footprint,LCSC
+"0.1uF","C1,C2,C3,C4,C5,C6,C9,C10","Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder","C138340"
+"4.7uF","C7","Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder","C77077"
+"10uF","C8","Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder","C83061"
+"B320","D1","Diode_SMD:D_SMC","C134448"
+"LED_Small","D2,D3,D4,D5","LED_SMD:LED_0805_2012Metric_Pad1.15x1.40mm_HandSolder","C189307"
+"BSS138","Q1,Q2","Package_TO_SOT_SMD:SOT-23","C5190146"
+"R_Small","R1","Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder","C510098"
+"300R","R10,R11,R13","Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder","C365284"
+"700R","R12","Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder","C229239"
+"10K","R2,R3,R4,R5,R14","Resistor_SMD:R_0805_2012Metric_Pad1.20x1.40mm_HandSolder","C510098"
+"TXS0104EPW","U1,U2,U3","Package_SO:SOIC-14_3.9x8.7mm_P1.27mm","C79342"
+"SN74LV1T34DBV","U6,U7","Package_TO_SOT_SMD:SOT-23-5","C100024"
