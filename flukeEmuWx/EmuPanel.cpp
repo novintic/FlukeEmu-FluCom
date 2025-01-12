@@ -161,6 +161,10 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
     m_snd.Load(SND_ID_PROBEHI, "media/high.wav");
     m_snd.Load(SND_ID_PROBEHILO, "media/hilo.wav");
 
+    m_soundFlukeEnabled = true;
+    m_soundProbeEnabled = true;
+    m_soundKeysEnabled = true;
+
     // Set initial window size
     SetBackgroundStyle(wxBG_STYLE_PAINT);
     wxDisplay display(wxDisplay::GetFromWindow(parent));
@@ -207,6 +211,29 @@ wxRect EmuPanel::scaleRect(wxRect rect, float ps, float ss)
 // Check for any emu outputs
 void EmuPanel::OnRunEmu(wxTimerEvent& event)
 {
+    wxLongLong wxStT   = wxGetLocalTimeMillis();
+    int64_t    stT     = wxStT.GetValue();
+    float      rtNowMs = (float)(int32_t)stT;
+    float      tdMs    =  rtNowMs - m_runTimeLast;
+    m_runTimeLast = rtNowMs;
+    //wxLogDebug("RUN EMU T: %.1f", rtNowMs);
+    m_runTdMsMin = tdMs < m_runTdMsMin ? tdMs : m_runTdMsMin;
+    m_runTdMsMax = tdMs > m_runTdMsMax ? tdMs : m_runTdMsMax;
+    m_runTdMsSum += tdMs;
+    m_runCount++;
+    if((rtNowMs - m_dispTimeLast) >= 1000.0f)
+    {
+        //wxLogDebug("RUN DT: %.1f C: %d Min: %.3f  Max: %.3f  Avg: %.3f", (rtNowMs - m_dispTimeLast),  m_runCount, m_runTdMsMin, m_runTdMsMax, m_runTdMsSum/m_runCount);
+        // reset
+        m_dispTimeLast = rtNowMs;
+        m_runCount = 0;
+        m_runTdMsSum = 0.0f;
+        m_runTdMsMin = 1000000.0f;
+        m_runTdMsMax = 0.0f;
+    }
+
+
+
     if(m_PwrState)
     {
         // Get time to hand on to disp and led updates
@@ -249,14 +276,19 @@ void EmuPanel::OnRunEmu(wxTimerEvent& event)
         // Sound handling
         if(hlchange || llchange)
         {
-            if(m_ProbeLEDHiState && m_ProbeLEDLoState)
-                m_snd.Play(SND_ID_PROBEHILO, true);
-            else if(m_ProbeLEDHiState)
-                m_snd.Play(SND_ID_PROBEHI, true);
-            else if(m_ProbeLEDLoState)
-                m_snd.Play(SND_ID_PROBELO, true);
+            if(m_soundProbeEnabled)
+            {
+                if(m_ProbeLEDHiState && m_ProbeLEDLoState)
+                    m_snd.Play(SND_ID_PROBEHILO, true);
+                else if(m_ProbeLEDHiState)
+                    m_snd.Play(SND_ID_PROBEHI, true);
+                else if(m_ProbeLEDLoState)
+                    m_snd.Play(SND_ID_PROBELO, true);
+                else
+                    m_snd.Stop(SND_ID_PROBELO); // ID doesn't matter
+            }
             else
-                m_snd.Stop(SND_ID_PROBELO); // ID doesn't matter
+                m_snd.Stop(SND_ID_PROBELO);
         }
     }
     // Update tape
@@ -268,6 +300,7 @@ void EmuPanel::OnRunEmu(wxTimerEvent& event)
     }
     // update serial port/file status
     updateSerialStatus();
+
 }
 
 wxSize EmuPanel::GetNativeSize()
@@ -283,7 +316,11 @@ void EmuPanel::OnPaint( wxPaintEvent &event )
     //wxPaintDC dc( this );
     wxAutoBufferedPaintDC dc( this );
     PrepareDC( dc );
+    // Measure update time
+    wxLongLong wxStT = wxGetUTCTimeUSec();
+    int64_t stT     = wxStT.GetValue();
 
+    //if(m_updBgnd)
     DrawBackGnd(dc);
     DrawDisplay(dc);    // Draw display
     DrawLEDS(dc);       // LEDS
@@ -291,6 +328,24 @@ void EmuPanel::OnPaint( wxPaintEvent &event )
     DrawTapeDrive(dc);  // Draw tape drive
     DrawActiveKeys(dc); // Draw active keys
     DrawKeyOverlay(dc); // Draw key overlay
+
+    wxLongLong wxEnT = wxGetUTCTimeUSec();
+    int64_t enT = wxEnT.GetValue();
+    int64_t tdiff = enT - stT;
+    float updMs = (float)tdiff/1000.0f;
+    m_updCount++;
+    m_updMsMin = updMs < m_updMsMin ? updMs : m_updMsMin;
+    m_updMsMax = updMs > m_updMsMax ? updMs : m_updMsMax;
+    m_updMsSum += updMs;
+    if((m_updCount % 100) == 0)
+    {
+        wxLogDebug("DRAW T: Min: %.3f  Max: %.3f  Avg: %.3f", m_updMsMin, m_updMsMax, m_updMsSum/m_updCount);
+        // reset
+        m_updCount = 0;
+        m_updMsSum = 0.0f;
+        m_updMsMin = 1000000.0f;
+        m_updMsMax = 0.0f;
+    }
 }
 
 void EmuPanel::ResizeElements(wxSize newSize)
@@ -326,6 +381,7 @@ void EmuPanel::ResizeElements(wxSize newSize)
     // emu settings
     m_KeyRectEmuSettings =  scaleRect(m_NativeKeyRectEmuSettings, m_PanelScale, m_PanelScale);
 
+    m_updBgnd = true;
 }
 
 void EmuPanel::OnResize(wxSizeEvent& event)
@@ -427,50 +483,58 @@ void EmuPanel::OnEraseBackground(wxEraseEvent& event)
 
 void EmuPanel::OnKeyEventDown(wxKeyEvent& event)
 {
-    int kf = KEY_NOKEY, k = event.GetKeyCode();
-    // check ASCII codes
-    if(k < ASCIIKEYMAPSIZE)
-        kf = m_asciiKmap[k];
-    // check other codes
-    for(int i = 0; i < OTHERKEYMAPSIZE; i++)
-    {
-        if(k == m_otherKmap[i][0])
-        {
-            kf = m_otherKmap[i][1];
-            break;
-        }
-    }
-
-    if(kf != KEY_NOKEY)
-    {
-        m_snd.Play(1);
-        // Handle toggle keys
-        if(kf == KEY_HIGH_DOWN) // Key is always reported as DOWN
-        {
-            if(m_PulseHikeyDown) // If state is down, change key code
-                kf = KEY_HIGH_UP;
-            m_PulseHikeyDown = !m_PulseHikeyDown;
-        }
-        if(kf == KEY_LOW_DOWN) // Key is always reported as DOWN
-        {
-            if(m_PulseLokeyDown) // If state is down, change key code
-                kf = KEY_LOW_UP;
-            m_PulseLokeyDown = !m_PulseLokeyDown;
-        }
-
-        m_emuHw.m_dispKeyb.KeyPressed(kf);
-        //notConsumed = false;
-    }
-    else
-        event.Skip();
-
+    bool notConsumed = true;
     int m = event.GetModifiers();
+    int kf = KEY_NOKEY;
+    int k = event.GetKeyCode();
+
     if((m & wxMOD_ALT) > 0)
     {
         m_ShowKeys = true;
         Refresh(true, NULL);
+        // do not consume!
         //wxLogDebug("KEYD: ALT ");
     }
+    else
+    {
+        // check ASCII codes
+        if(k < ASCIIKEYMAPSIZE)
+            kf = m_asciiKmap[k];
+        // check other codes
+        for(int i = 0; i < OTHERKEYMAPSIZE; i++)
+        {
+            if(k == m_otherKmap[i][0])
+            {
+                kf = m_otherKmap[i][1];
+                break;
+            }
+        }
+
+        if(kf != KEY_NOKEY)
+        {
+            if(m_soundKeysEnabled)
+                m_snd.Play(1);
+            // Handle toggle keys
+            if(kf == KEY_HIGH_DOWN) // Key is always reported as DOWN
+            {
+                if(m_PulseHikeyDown) // If state is down, change key code
+                    kf = KEY_HIGH_UP;
+                m_PulseHikeyDown = !m_PulseHikeyDown;
+            }
+            if(kf == KEY_LOW_DOWN) // Key is always reported as DOWN
+            {
+                if(m_PulseLokeyDown) // If state is down, change key code
+                    kf = KEY_LOW_UP;
+                m_PulseLokeyDown = !m_PulseLokeyDown;
+            }
+
+            m_emuHw.m_dispKeyb.KeyPressed(kf);
+            notConsumed = false;
+        }
+    }
+
+    if(notConsumed)
+        event.Skip();
     wxLogDebug("KEYD: %d -> %d", k, kf );
 }
 
@@ -501,11 +565,13 @@ void EmuPanel::OnMouseEvent(wxMouseEvent& event)
                 m_emuHw.execCtrl(EMU_RUN);
                 m_PwrState = true;
                 m_PwrStateLast = false;
-                m_snd.Play(SND_ID_POWON1);
+                if(m_soundFlukeEnabled)
+                    m_snd.Play(SND_ID_POWON1);
             }
             else
             {
-                m_snd.Play(SND_ID_POWOFF1);
+                if(m_soundFlukeEnabled)
+                    m_snd.Play(SND_ID_POWOFF1);
             }
             m_PwrButDown = true;
             Refresh(true, NULL); // TEST DO BETTER
@@ -525,7 +591,8 @@ void EmuPanel::OnMouseEvent(wxMouseEvent& event)
             uint8_t key = GetKey(event.GetX()/m_PanelScale, event.GetY()/m_PanelScale, &keyRect);
             if(key != 255)
             {
-                m_snd.Play(1);
+                if(m_soundKeysEnabled)
+                    m_snd.Play(1);
                 m_KeyRectDown = keyRect;
                 if(key == KEY_HIGH_DOWN) // Key is always reported as DOWN
                 {
@@ -562,14 +629,16 @@ void EmuPanel::OnMouseEvent(wxMouseEvent& event)
         {
             if(m_PwrState && !m_PwrStateLast)
             {
-                m_snd.Play(SND_ID_POWON2);
+                if(m_soundFlukeEnabled)
+                    m_snd.Play(SND_ID_POWON2);
                 m_PwrStateLast = true;
             }
             else
             {
                 m_PwrState = false;
                 m_emuHw.execCtrl(EMU_PAUSE);
-                m_snd.Play(SND_ID_POWOFF2);
+                if(m_soundFlukeEnabled)
+                    m_snd.Play(SND_ID_POWOFF2);
             }
             Refresh(true, NULL); // need full refresh
             m_PwrButDown = false;
@@ -980,3 +1049,22 @@ void EmuPanel::updateSerialStatus(void)
         ((FlukeEmuWxFrame*)GetParent())->GetStatusBar()->SetStatusText(serStat, 1);
     }
 }
+
+void EmuPanel::enableSoundFluke(bool enable)
+{
+    wxLogDebug("Sound fluke: %s", enable ? "on":"off");
+    m_soundFlukeEnabled = enable;
+}
+
+void EmuPanel::enableSoundProbe(bool enable)
+{
+    wxLogDebug("Sound probe: %s", enable ? "on":"off");
+    m_soundProbeEnabled = enable;
+}
+
+void EmuPanel::enableSoundKeys(bool enable)
+{
+    wxLogDebug("Sound keys: %s", enable ? "on":"off");
+    m_soundKeysEnabled = enable;
+}
+
