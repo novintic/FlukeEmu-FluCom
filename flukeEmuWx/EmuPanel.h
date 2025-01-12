@@ -61,6 +61,14 @@ class EmuPanel: public wxWindow
         void SerOutFileDialog(void);
         void updateSerialStatus(void);
 
+        void enableSoundFluke(bool enable);
+        void enableSoundProbe(bool enable);
+        void enableSoundKeys(bool enable);
+
+        bool soundFlukeEnabled(void) { return m_soundFlukeEnabled; };
+        bool soundProbeEnabled(void) { return m_soundProbeEnabled; };
+        bool soundKeysEnabled(void) { return m_soundKeysEnabled; };
+
         int setSerialPort(wxString pname, int speed)
         { return m_emuHw.m_serPort.setSerPort(pname, speed); };
 
@@ -102,6 +110,19 @@ class EmuPanel: public wxWindow
     wxRect      m_KeyRectEmuSettings;
     wxRect      m_NativeKeyRectEmuSettings;
 
+    // Optimized panel update
+    bool        m_updBgnd = false;
+    float       m_updMsMin = 1000000.0f;
+    float       m_updMsMax = 0.0f;
+    float       m_updMsSum = 0.0f;
+    int         m_updCount = 0;
+
+    float       m_runTimeLast = 0.0f;
+    float       m_dispTimeLast = 0.0f;
+    float       m_runTdMsMin = 0.0f;
+    float       m_runTdMsMax = 0.0f;
+    float       m_runTdMsSum = 0.0f;
+    int         m_runCount = 0;
     // Font display
     wxRect      m_dispRect = DISPLAY_RECT;
 
@@ -155,6 +176,11 @@ class EmuPanel: public wxWindow
     wxString    m_serPortDispName;
     wxString    m_serInFileDispName;
     wxString    m_serOutFileDispName;
+
+    // sound config
+    bool        m_soundFlukeEnabled;
+    bool        m_soundProbeEnabled;
+    bool        m_soundKeysEnabled;
 
     wxSndWrap   m_snd;
 

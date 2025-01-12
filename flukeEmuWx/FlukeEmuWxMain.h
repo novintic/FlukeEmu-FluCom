@@ -33,17 +33,25 @@ class FlukeEmuWxFrame: public wxFrame
         wxString  m_portName;
         wxString  m_tapeFile;
         wxMenu*   m_settingsMenu;
+        wxMenu*   m_popupMenu;
+        wxMenu*   m_soundMenu;
+        wxMenu*   m_soundMenuPm;
 
         enum
         {
             idMenuQuit = 1000,
             idMenuAbout,
+            idMenuSettings,
             idMenuFullScreen,
             idMenuTapeFile,
             idMenuSerialPort,
             idMenuSerialPortOpts,
             idMenuSerialPortInFile,
-            idMenuSerialPortOutFile
+            idMenuSerialPortOutFile,
+            idMenuSound,
+            idMenuSoundKeys,
+            idMenuSoundProbe,
+            idMenuSoundFluke,
         };
         void OnClose(wxCloseEvent& event);
         void OnQuit(wxCommandEvent& event);
@@ -54,6 +62,11 @@ class FlukeEmuWxFrame: public wxFrame
         void OnMenuSerPortOptions(wxCommandEvent& event);
         void OnMenuSerPortInFile(wxCommandEvent& event);
         void OnMenuSerPortOutFile(wxCommandEvent& event);
+        void OnMenuOpen(wxMenuEvent& event);
+        void OnUpdateMenu(wxMenuEvent& event);
+        void OnMnSndFluke(wxCommandEvent &event);
+        void OnMnSndProbe(wxCommandEvent &event);
+        void OnMnSndKeys(wxCommandEvent &event);
         DECLARE_EVENT_TABLE()
 };
 

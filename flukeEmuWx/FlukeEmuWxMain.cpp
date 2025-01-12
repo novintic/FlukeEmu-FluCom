@@ -88,12 +88,17 @@ BEGIN_EVENT_TABLE(FlukeEmuWxFrame, wxFrame)
     EVT_CLOSE(FlukeEmuWxFrame::OnClose)
     EVT_MENU(idMenuQuit, FlukeEmuWxFrame::OnQuit)
     EVT_MENU(idMenuAbout, FlukeEmuWxFrame::OnAbout)
+    EVT_MENU_OPEN(FlukeEmuWxFrame::OnMenuOpen)
     EVT_MENU(idMenuFullScreen, FlukeEmuWxFrame::OnFullScreen)
     EVT_MENU(idMenuTapeFile, FlukeEmuWxFrame::OnMenuTapeFile)
     EVT_MENU(idMenuSerialPortOpts, FlukeEmuWxFrame::OnMenuSerPortOptions)
     EVT_MENU(idMenuSerialPortInFile, FlukeEmuWxFrame::OnMenuSerPortInFile)
     EVT_MENU(idMenuSerialPortOutFile, FlukeEmuWxFrame::OnMenuSerPortOutFile)
     EVT_MOUSE_EVENTS(FlukeEmuWxFrame::OnMouseEvent)
+    EVT_MENU(idMenuSoundFluke, FlukeEmuWxFrame::OnMnSndFluke)
+    EVT_MENU(idMenuSoundProbe, FlukeEmuWxFrame::OnMnSndProbe)
+    EVT_MENU(idMenuSoundKeys, FlukeEmuWxFrame::OnMnSndKeys)
+    //EVT_MENU(FlukeEmuWxFrame::OnMenu)
 END_EVENT_TABLE()
 
 FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title, bool fullscreen)
@@ -114,17 +119,41 @@ FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title, bool ful
     serPortMenu->Append(idMenuSerialPortOpts, _("&Set port"), _("Serial port settings"));
     serPortMenu->Append(idMenuSerialPortInFile, _("&Send file"), _("Send file to emulator"));
     serPortMenu->Append(idMenuSerialPortOutFile, _("&Receive file"), _("Receive file from emulator"));
-    // attach popup menu
     m_settingsMenu->Append(idMenuSerialPort, _("&Serial port"), serPortMenu, _("Serial port options"));
-    //settingsMenu->Append(idMenuSerialPort, _("&Serial Port"), _("Serial Port"));
-
+    // Sounds
+    m_soundMenu = new wxMenu(_T("Sound"));
+    m_soundMenu->AppendCheckItem(idMenuSoundFluke, _("&Fluke sounds"), _("Enable/disable fluke sounds"));
+    m_soundMenu->AppendCheckItem(idMenuSoundProbe, _("&Probe sounds"), _("Enable/disable probe sounds"));
+    m_soundMenu->AppendCheckItem(idMenuSoundKeys, _("&Key sounds"), _("Enable/disable key sounds"));
+    m_settingsMenu->Append(idMenuSound, _("&Sound"), m_soundMenu, _("Sound options"));
+    // attach popup menu
     mbar->Append(m_settingsMenu, _("&Settings"));
+
     // Help menu
     wxMenu* helpMenu = new wxMenu(_T(""));
     helpMenu->Append(idMenuAbout, _("&About\tF1"), _("Show info about FlukeEmuWx"));
     mbar->Append(helpMenu, _("&Help"));
 
+    // attach menu bar
     SetMenuBar(mbar);
+
+    // setup popup menu for menu key
+    m_popupMenu = new wxMenu(_T(""));
+    m_popupMenu->Append(idMenuFullScreen, _("&Fullscreen\tF5"), _("Switch to fullscreen"));
+    m_popupMenu->Append(idMenuTapeFile, _("&Tape file"), _("Set tape file"));
+    // serial port menu
+    wxMenu* serPortMenuPm = new wxMenu(_T(""));
+    serPortMenuPm->Append(idMenuSerialPortOpts, _("Set &port"), _("Serial port settings"));
+    serPortMenuPm->Append(idMenuSerialPortInFile, _("&Send to emu"), _("Send file to emulator"));
+    serPortMenuPm->Append(idMenuSerialPortOutFile, _("&Write to disk"), _("Receive file from emulator"));
+    // attach popup menu
+    m_popupMenu->Append(idMenuSerialPort, _("&Serial port"), serPortMenuPm, _("Serial port options"));
+    // Sounds
+    m_soundMenuPm = new wxMenu(_T("Sound PM"));
+    m_soundMenuPm->AppendCheckItem(idMenuSoundFluke, _("&Fluke sounds"), _("Enable/disable fluke sounds"));
+    m_soundMenuPm->AppendCheckItem(idMenuSoundProbe, _("&Probe sounds"), _("Enable/disable probe sounds"));
+    m_soundMenuPm->AppendCheckItem(idMenuSoundKeys, _("&Key sounds"), _("Enable/disable key sounds"));
+    m_popupMenu->Append(idMenuSound, _("&Sound"), m_soundMenuPm, _("Sound options"));
 
     m_portName = "/dev/serial0";
     m_tapeFile = "";
@@ -146,6 +175,65 @@ FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title, bool ful
 FlukeEmuWxFrame::~FlukeEmuWxFrame()
 {
 }
+
+void FlukeEmuWxFrame::OnUpdateMenu(wxMenuEvent& event)
+{
+    int mid = event.GetMenuId();
+    wxString title = event.GetMenu()->GetTitle();
+    wxMenu* pM = event.GetMenu();
+    //wxLogDebug("MenuUpdate: id: %d: %s", mid, title);
+
+}
+
+void FlukeEmuWxFrame::OnMenuOpen(wxMenuEvent& event)
+{
+    int mid = event.GetMenuId();
+    wxString title = event.GetMenu()->GetTitle();
+    wxMenu* pM = event.GetMenu();
+    wxLogDebug("MenuOpen: id: %d: %s", mid, title);
+    if(mid == idMenuSound)
+    {
+        wxLogDebug("Menu Sound Open: id: %d: %s", mid, title);
+        //m_soundMenu->FindItem()
+    }
+    if(mid == idMenuSoundFluke)
+    {
+        wxLogDebug("Menu open: Sound Fluke: id: %d: %s", mid, title);
+        //m_soundMenu->FindItem()
+
+        	//Check (int id, bool check)
+    }
+    // ID does not work, use title(s)
+    if(title.IsSameAs(wxString("Sound")) || title.IsSameAs(wxString("Sound PM")))
+    {
+        pM->FindChildItem(idMenuSoundFluke)->Check(m_Emu->soundFlukeEnabled());
+        pM->FindChildItem(idMenuSoundProbe)->Check(m_Emu->soundProbeEnabled());
+        pM->FindChildItem(idMenuSoundKeys)->Check(m_Emu->soundKeysEnabled());
+    }
+}
+
+
+void FlukeEmuWxFrame::OnMnSndFluke(wxCommandEvent &event)
+{
+    //event->IsChecked()
+    wxLogDebug("Menu Sound Fluke %d", event.IsChecked());
+    m_Emu->enableSoundFluke(event.IsChecked());
+}
+
+void FlukeEmuWxFrame::OnMnSndProbe(wxCommandEvent &event)
+{
+    //event->IsChecked()
+    wxLogDebug("Menu Sound Probe %d", event.IsChecked());
+    m_Emu->enableSoundProbe(event.IsChecked());
+}
+
+void FlukeEmuWxFrame::OnMnSndKeys(wxCommandEvent &event)
+{
+    //event->IsChecked()
+    wxLogDebug("Menu Sound Keys %d", event.IsChecked());
+    m_Emu->enableSoundKeys(event.IsChecked());
+}
+
 
 void FlukeEmuWxFrame::OnFullScreen(wxCommandEvent &event)
 {
@@ -214,18 +302,24 @@ void FlukeEmuWxFrame::OnMouseEvent(wxMouseEvent& event)
         if(dp.Contains(event.GetPosition()))
         {
             // Show popupmenu at position
-            wxMenu menu(wxT("Settings"));
-            menu.Append(idMenuFullScreen, wxT("&Enter/Exit\tF5"));
-            menu.Append(idMenuTapeFile, _("&Tape file"), _("Set tape file"));
+            //wxMenu menu(wxT(""));
+            //menu.Append(idMenuFullScreen, wxT("&Enter/Exit\tF5"));
+            //menu.Append(idMenuTapeFile, _("&Tape file"), _("Set tape file"));
             // serial port menu
-            wxMenu* serPortMenu = new wxMenu(_T(""));
-            serPortMenu->Append(idMenuSerialPortOpts, _("&Set port"), _("Serial port settings"));
-            serPortMenu->Append(idMenuSerialPortInFile, _("&Send file"), _("Send file to emulator"));
-            serPortMenu->Append(idMenuSerialPortOutFile, _("&Receive file"), _("Receive file from emulator"));
-            // attach popup menu
-            menu.Append(idMenuSerialPort, _("&Serial port"), serPortMenu, _("Serial port options"));
+            //wxMenu* serPortMenu = new wxMenu(_T(""));
+            //serPortMenu->Append(idMenuSerialPortOpts, _("Set &port"), _("Serial port settings"));
+            //serPortMenu->Append(idMenuSerialPortInFile, _("&Send to emu"), _("Send file to emulator"));
+            //serPortMenu->Append(idMenuSerialPortOutFile, _("&Write to disk"), _("Receive file from emulator"));
+            // attach popup men
+            //menu.Append(idMenuSerialPort, _("&Serial port"), serPortMenu, _("Serial port options"));
 
-            PopupMenu(&menu, event.GetPosition());
+//            PopupMenu(&menu, event.GetPosition());
+
+            //void 	Check (bool check=true)
+
+            PopupMenu(m_popupMenu, event.GetPosition());
+
+
             notConsumed = false;
         }
         //m_KeyRectEmuSettings
