@@ -1,6 +1,0 @@
-V5
-- added active level shifting for /HIGH and /LOW signals to the PICO
-- added on-board LEDs and header for external LEDs (J9)
-- minor layout adjustments
-
-Novitntic 05/2024

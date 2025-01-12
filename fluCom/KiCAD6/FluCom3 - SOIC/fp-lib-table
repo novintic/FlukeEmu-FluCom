@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "Fluke6809POD")(type "KiCad")(uri "/Users/coma/Desktop/KiCAD/6502_V2/Footprints/Fluke6809POD.pretty")(options "")(descr ""))
+  (lib (name "FluCom")(type "KiCad")(uri "${KIPRJMOD}/footprints")(options "")(descr ""))
+)
