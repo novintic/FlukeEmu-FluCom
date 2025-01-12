@@ -162,7 +162,7 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
     m_snd.Load(SND_ID_PROBEHILO, "media/hilo.wav");
 
     m_soundFlukeEnabled = true;
-    m_soundProbeEnabled = true;
+    m_soundProbeEnabled = false;
     m_soundKeysEnabled = true;
 
     // Set initial window size
