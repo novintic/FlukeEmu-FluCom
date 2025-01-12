@@ -1,7 +1,0 @@
-V5
-- added active level shifting for /PODSTAT and SYNC signals
-- added a connector (J9) and footprint for a switch which grounds GPIO3. Either can be used as a soft shutdown/powerup button by adding "dtoverlay=gpio-shutdown" to /boot/config.txt
-- added a connector to +5V Raspi (J10) to power a screen / fan / whatever
-- minor layout adjustments
-
-Novitntic 05/2024
