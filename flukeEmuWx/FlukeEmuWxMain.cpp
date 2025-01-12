@@ -98,7 +98,6 @@ BEGIN_EVENT_TABLE(FlukeEmuWxFrame, wxFrame)
     EVT_MENU(idMenuSoundFluke, FlukeEmuWxFrame::OnMnSndFluke)
     EVT_MENU(idMenuSoundProbe, FlukeEmuWxFrame::OnMnSndProbe)
     EVT_MENU(idMenuSoundKeys, FlukeEmuWxFrame::OnMnSndKeys)
-    //EVT_MENU(FlukeEmuWxFrame::OnMenu)
 END_EVENT_TABLE()
 
 FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title, bool fullscreen)
