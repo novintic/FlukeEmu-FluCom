@@ -357,7 +357,7 @@ int emuSerPort::openInFile(wxString pname)
     if(pname != "")
     {
         m_fhInFile = fopen (pname, "r");
-        if (m_fhInFile < 0)
+        if (m_fhInFile == NULL)
             wxLogDebug("m_fhInFile: error %d opening %s %s\n", errno, pname, strerror (errno));
         else
         {
@@ -384,7 +384,7 @@ int emuSerPort::openOutFile(wxString pname)
     if(pname != "")
     {
         m_fhOutFile = fopen (pname, "w");
-        if (m_fhOutFile < 0)
+        if (m_fhOutFile == NULL)
             wxLogDebug("m_fhOutFile: error %d opening %s %s\n", errno, pname, strerror (errno));
         else
         {

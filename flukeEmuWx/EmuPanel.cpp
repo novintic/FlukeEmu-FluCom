@@ -198,6 +198,10 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
 
 EmuPanel::~EmuPanel()
 {
+    wxLogDebug("Terminating emu thread");
+    m_emuHw.execCtrl(EMU_EXIT);
+    m_emuHw.Wait();
+    wxLogDebug("emu thread exited");
 }
 
 wxRect EmuPanel::scaleRect(wxRect rect, float ps, float ss)

@@ -53,6 +53,10 @@ flukeEmuHw::flukeEmuHw() : wxThread(wxTHREAD_JOINABLE)
 
 flukeEmuHw::~flukeEmuHw()
 {
+    wxLogDebug("Terminating probe com thread");
+    m_probeBoard.execCtrl(ECMD_EXIT);
+    m_probeBoard.Wait();
+    wxLogDebug("probe com thread exited");
 }
 
 // The thread execution function

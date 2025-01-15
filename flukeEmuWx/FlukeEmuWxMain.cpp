@@ -173,6 +173,7 @@ FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title, bool ful
 
 FlukeEmuWxFrame::~FlukeEmuWxFrame()
 {
+    delete m_Emu;
 }
 
 void FlukeEmuWxFrame::OnUpdateMenu(wxMenuEvent& event)

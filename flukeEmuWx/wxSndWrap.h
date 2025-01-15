@@ -20,7 +20,7 @@ Boston, MA 02111-1307 USA
 #include <wx/wx.h>
 #include <wx/sound.h>
 
-#define USE_WX_SOUND      // disable to use pulse audio
+//#define USE_WX_SOUND      // disable to use pulse audio
 
 // wxSound needs SDL dev linraries installed, when building wxWidgets
 // sudo apt-get install libsdl2-dev

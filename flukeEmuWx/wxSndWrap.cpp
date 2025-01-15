@@ -67,8 +67,10 @@ void wxSndWrap::init(void)
 bool wxSndWrap::openPACon(void)
 {
 #ifdef USE_WX_SOUND
+    wxLogDebug("Sound: wxSound");
     m_paConnected = true;
 #else
+    wxLogDebug("Sound: pulseAudio");
     // setup pa
     m_Pass.format   = PA_SAMPLE_S16NE;
     m_Pass.channels = 2;
