@@ -1,4 +1,15 @@
 ## Instructions for setting up FlukeEmuWx by Clemens (Novintic)
+
+## Easy method:
+
+1) Get a Raspberry PI 2, 3 or 4 with Raspi OS installed
+2) Download the install script: https://raw.githubusercontent.com/novintic/FlukeEmu-FluCom/refs/heads/main/flukeEmuWx/build-flukeEmuWx.sh
+3) make it executable: chmod u+x build-flukeEmuWx.sh
+4) execute the script and wait.
+5) Start flukeEmuWx from the menu/others folder
+
+
+## Advanced method
 You need:
 * A Raspberry PI 2, 3 or 4 with Raspi OS installed
 * Codeblocks IDE (if not installed, use add/remove software)
