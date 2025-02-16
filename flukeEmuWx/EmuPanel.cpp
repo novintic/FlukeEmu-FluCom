@@ -49,7 +49,7 @@ wxBEGIN_EVENT_TABLE(EmuPanel, wxWindow)
   EVT_TIMER(RUNEMU_TIMER_ID, EmuPanel::OnRunEmu)
 wxEND_EVENT_TABLE()
 
-EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size)
+EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size, double emuSpeedFactor)
          :wxWindow( parent, id, pos, size, wxSUNKEN_BORDER )
 {
     // Check media path
@@ -80,7 +80,23 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
     else
     {
         wxMessageBox (wxString::Format("Panel image: %s not found!\nThe image must be in the folder 'media'!", F9010PANEL_BMP), wxString("Panel image missing"));
-        //throw std::domain_error("Panel image not found!");
+        exit(EXIT_FAILURE);
+    }
+
+    m_NativeWarnIconPos = PROBEBOARD_WARN_POS;
+    m_warnIconPos = m_NativeWarnIconPos;
+    if(m_warnIconImage.LoadFile(PROBEBOARD_WARN_ICON))
+    {
+        // resize
+        m_warnIconSize = wxSize(50, 50);
+        m_warnIconImage.Rescale(m_warnIconSize.x,  m_warnIconSize.y, wxIMAGE_QUALITY_HIGH);
+        // Convert wxImage to wxBitmap
+        m_warnIconBitmap = new wxBitmap(m_warnIconImage);
+        wxLogDebug("Warnicon: size %d x %d", m_warnIconImage.GetWidth(), m_warnIconImage.GetHeight());
+    }
+    else
+    {
+        wxMessageBox ("Warn icon image not found!", wxString("Image missing"));
         exit(EXIT_FAILURE);
     }
 
@@ -108,20 +124,8 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
     // LEDs
     m_LEDState = 0;
     // Probe LEDS
-   // wxRect kr = GetKeyRect(KEY_HIGH_DOWN);
-   // m_NativeProbeLEDHiRect.x = kr.x + kr.width/2 - LED_SIZE.x/2;
-   // m_NativeProbeLEDHiRect.y = kr.y + kr.height/2 - LED_SIZE.y/2 - kr.height/4;
-   // m_NativeProbeLEDHiRect.width = LED_SIZE.x;
-   // m_NativeProbeLEDHiRect.height = LED_SIZE.y;
-
-   // kr = GetKeyRect(KEY_LOW_DOWN);
-   // m_NativeProbeLEDLoRect.x = kr.x + kr.width/2 - LED_SIZE.x/2;
-   // m_NativeProbeLEDLoRect.y = kr.y + kr.height/2 - LED_SIZE.y/2  - kr.height/4;
-   // m_NativeProbeLEDLoRect.width = LED_SIZE.x;
-   // m_NativeProbeLEDLoRect.height = LED_SIZE.y;
-
-    m_NativeProbeLEDHiRect = PROBE_HI_LED_RECT;
-    m_NativeProbeLEDLoRect = PROBE_LO_LED_RECT;
+    m_NativeProbeLEDHiRect = GetKeyRect(KEY_HIGH_DOWN);
+    m_NativeProbeLEDLoRect = GetKeyRect(KEY_LOW_DOWN);
     m_ProbeLEDHiRect = m_NativeProbeLEDHiRect;
     m_ProbeLEDLoRect = m_NativeProbeLEDLoRect;
 
@@ -188,11 +192,13 @@ EmuPanel::EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wx
     m_timer = new wxTimer(this, RUNEMU_TIMER_ID);
     flukeEmuHwSetInst(&m_emuHw);
     m_timer->Start(10);    // 1 second interval
-    wxLogDebug("EMU started");
 
+    m_emuHw.setUserSpeedFactor(emuSpeedFactor);
     // Start emu thread
     if ( m_emuHw.Run() != wxTHREAD_NO_ERROR )
         wxLogError("Can't create ENU thread!");
+    else
+        wxLogDebug("EMU started");
 
 }
 
@@ -235,8 +241,6 @@ void EmuPanel::OnRunEmu(wxTimerEvent& event)
         m_runTdMsMin = 1000000.0f;
         m_runTdMsMax = 0.0f;
     }
-
-
 
     if(m_PwrState)
     {
@@ -304,7 +308,8 @@ void EmuPanel::OnRunEmu(wxTimerEvent& event)
     }
     // update serial port/file status
     updateSerialStatus();
-
+    // Probe board status
+    m_probeBoardDetected = m_emuHw.m_probeBoard.probeBoardDetected();
 }
 
 wxSize EmuPanel::GetNativeSize()
@@ -324,7 +329,6 @@ void EmuPanel::OnPaint( wxPaintEvent &event )
     wxLongLong wxStT = wxGetUTCTimeUSec();
     int64_t stT     = wxStT.GetValue();
 
-    //if(m_updBgnd)
     DrawBackGnd(dc);
     DrawDisplay(dc);    // Draw display
     DrawLEDS(dc);       // LEDS
@@ -343,7 +347,7 @@ void EmuPanel::OnPaint( wxPaintEvent &event )
     m_updMsSum += updMs;
     if((m_updCount % 100) == 0)
     {
-        wxLogDebug("DRAW T: Min: %.3f  Max: %.3f  Avg: %.3f", m_updMsMin, m_updMsMax, m_updMsSum/m_updCount);
+        //wxLogDebug("DRAW T: Min: %.3f  Max: %.3f  Avg: %.3f", m_updMsMin, m_updMsMax, m_updMsSum/m_updCount);
         // reset
         m_updCount = 0;
         m_updMsSum = 0.0f;
@@ -365,9 +369,9 @@ void EmuPanel::ResizeElements(wxSize newSize)
     int wxs = m_bgndImage.GetWidth()*m_PanelScale;
     int wys = m_bgndImage.GetHeight()*m_PanelScale;
 
-    //wxLogDebug("Panel scale: %.5f", m_PanelScale);
+    if (m_PanelScale < 0.0001f)
+        wxLogDebug("Panel scale: %.5f", m_PanelScale);
     // Update rectangles for mouse click detection
-
     m_bgndSide.width  = xdim ? newSize.x : newSize.x - wxs;
     m_bgndSide.height = xdim ? newSize.y - wys : newSize.y;
     m_bgndSide.x      = xdim ? 0 : wxs;
@@ -382,10 +386,20 @@ void EmuPanel::ResizeElements(wxSize newSize)
     // Probe LEDS
     m_ProbeLEDHiRect = scaleRect(m_NativeProbeLEDHiRect, m_PanelScale, m_PanelScale);
     m_ProbeLEDLoRect = scaleRect(m_NativeProbeLEDLoRect, m_PanelScale, m_PanelScale);
+    // Probe board warnicon
+    if (m_PanelScale > 0.0)
+    {
+        int xs = m_warnIconImage.GetWidth()*m_PanelScale;
+        int ys = m_warnIconImage.GetHeight()*m_PanelScale;
+        //wxLogDebug("Warnicon %d x %d s: %.5f", xs, ys, m_PanelScale);
+        // Create new version of scaled icon
+        delete m_warnIconBitmap;
+        m_warnIconBitmap = new wxBitmap(m_warnIconImage.Scale(xs, ys, wxIMAGE_QUALITY_HIGH));
+        m_warnIconPos = m_NativeWarnIconPos * m_PanelScale;
+    }
     // emu settings
     m_KeyRectEmuSettings =  scaleRect(m_NativeKeyRectEmuSettings, m_PanelScale, m_PanelScale);
-
-    m_updBgnd = true;
+    //m_updBgnd = true;
 }
 
 void EmuPanel::OnResize(wxSizeEvent& event)
@@ -405,9 +419,10 @@ void EmuPanel::DrawBackGnd(wxAutoBufferedPaintDC &dc)
         if(m_PanelSizeUpd)
         {
             //wxLogDebug("Scaling: %d  %d", sz.GetWidth(), sz.GetHeight());
-           // ResizeElements(sz);
             int wxs = m_bgndImage.GetWidth()*m_PanelScale;
             int wys = m_bgndImage.GetHeight()*m_PanelScale;
+            // Create new scaled version of background image
+            delete m_bgndPanel;
             m_bgndPanel = new wxBitmap(m_bgndImage.Scale(wxs, wys, wxIMAGE_QUALITY_HIGH));
             m_PanelSizeUpd = false;
         }
@@ -446,44 +461,6 @@ void EmuPanel::DrawBackGnd(wxAutoBufferedPaintDC &dc)
         #endif // DRAW_KEYb_GRID
     }
 }
-
-/*
-void EmuPanel::OnEraseBackground(wxEraseEvent& event)
-{
-    if (m_bgndImage.IsOk())
-    {
-        // Scale?
-        if(m_PanelSizeUpd)
-        {
-            //wxLogDebug("Scaling: %d  %d", sz.GetWidth(), sz.GetHeight());
-           // ResizeElements(sz);
-            int wxs = m_bgndImage.GetWidth()*m_PanelScale;
-            int wys = m_bgndImage.GetHeight()*m_PanelScale;
-            m_bgndPanel = new wxBitmap(m_bgndImage.Scale(wxs, wys, wxIMAGE_QUALITY_HIGH));
-            m_PanelSizeUpd = false;
-        }
-
-        if (event.GetDC())
-        {
-            event.GetDC()->DrawBitmap(*m_bgndPanel, 0, 0);
-            //event.GetDC()->SetPen(*wxRED_PEN);
-            event.GetDC()->SetPen(*wxLIGHT_GREY_PEN);
-            event.GetDC()->SetBrush(*wxLIGHT_GREY_BRUSH);
-            event.GetDC()->DrawRectangle(m_bgndSide);
-        }
-        else
-        {
-            wxClientDC dc(this);
-            dc.DrawBitmap(*m_bgndPanel, 0, 0);
-            dc.SetPen(*wxLIGHT_GREY_PEN);
-            dc.SetBrush(*wxLIGHT_GREY_BRUSH);
-            dc.DrawRectangle(m_bgndSide);
-        }
-    }
-    else
-        event.Skip(); // The official way of doing it
-}
-*/
 
 void EmuPanel::OnKeyEventDown(wxKeyEvent& event)
 {
@@ -698,17 +675,26 @@ void EmuPanel::DrawLEDS(wxAutoBufferedPaintDC &dc)
             dc.DrawRoundedRectangle(m_LEDPos[lix]*m_PanelScale, LED_SIZE*m_PanelScale, LED_CORNR*m_PanelScale);
         }
         // Probe LEDS
-        if(m_ProbeLEDHiState)
-            dc.SetBrush(*wxRED_BRUSH);
-        else
-            dc.SetBrush(*wxBLACK_BRUSH);
-        dc.DrawRoundedRectangle(m_ProbeLEDHiRect, LED_CORNR*m_PanelScale);
-
-        if(m_ProbeLEDLoState)
-            dc.SetBrush(*wxGREEN_BRUSH);
-        else
-            dc.SetBrush(*wxBLACK_BRUSH);
-        dc.DrawRoundedRectangle(m_ProbeLEDLoRect, LED_CORNR*m_PanelScale);
+        if(m_probeBoardDetected)
+        {
+            if(m_ProbeLEDHiState)
+            {
+                dc.SetBrush(*wxRED_BRUSH);
+                dc.SetBrush(wxColor(150, 0, 0, 180));
+                dc.DrawRoundedRectangle(m_ProbeLEDHiRect, POWER_BUT_CORNR*m_PanelScale);
+            }
+            if(m_ProbeLEDLoState)
+            {
+                dc.SetBrush(*wxRED_BRUSH);
+                dc.SetBrush(wxColor(0, 150, 0, 180));
+                dc.DrawRoundedRectangle(m_ProbeLEDLoRect, POWER_BUT_CORNR*m_PanelScale);
+            }
+        }
+    }
+    // Probe board
+    if(!m_probeBoardDetected)
+    {
+        dc.DrawBitmap(*m_warnIconBitmap, m_warnIconPos, false);
     }
 }
 

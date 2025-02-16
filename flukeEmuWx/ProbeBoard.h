@@ -84,6 +84,7 @@ class ProbeBoard : public wxThread
     void init(void);
     void reset(void);
     void probeBoardComm(void);
+    bool probeBoardDetected(void);
 
     void getData(uint8_t *pBuf, uint32_t maxSize);
     void setData(uint8_t *pBuf, uint32_t maxSize);
@@ -112,6 +113,10 @@ class ProbeBoard : public wxThread
     float   m_avgEmuTime;
     float   m_maxEmuTime;
 
+    int m_commCnt;
+    int m_commErrors;
+    bool m_probeBoardUp;
+    //int m_commErrors;
     int hSPIDev;	// SPI device handle
 
     PROBE_SPIOUT_REGS_t m_outMsg;  // OUT is in on RPI

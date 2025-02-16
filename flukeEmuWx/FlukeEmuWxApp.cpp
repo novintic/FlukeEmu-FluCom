@@ -33,7 +33,7 @@ bool FlukeEmuWxApp::OnInit()
     // Log window
     //wxLogWindow* logWnd = new wxLogWindow(NULL, "FlukeEmuLog", true, false);
     //logWnd->SetActiveTarget(logWnd);
-    FlukeEmuWxFrame* frame = new FlukeEmuWxFrame(0L, _("FlukeEmuWx"), fullscreen);
+    FlukeEmuWxFrame* frame = new FlukeEmuWxFrame(0L, _("FlukeEmuWx"), fullscreen, userEmuSpeedFactor);
     wxLogDebug("FlukeEmuWx LOG started\n");
     //frame->SetIcon(wxICON(aaaa)); // To Set App Icon
     frame->Show();
@@ -47,6 +47,10 @@ void FlukeEmuWxApp::OnInitCmdLine(wxCmdLineParser& parser)
 
 bool FlukeEmuWxApp::OnCmdLineParsed(wxCmdLineParser& parser)
 {
+    // Start in full screen flag
     fullscreen = parser.Found(wxT("f"));
+    // User emulation speed factor
+    if( !parser.Found(wxT("s"), &userEmuSpeedFactor))
+        userEmuSpeedFactor = 2.0;   // Default factor 2.0
     return true;
 }

@@ -147,7 +147,7 @@ Boston, MA 02111-1307 USA
 // Defines for EmuPanel
 
 // New look
-#define F9010PANEL_BMP  "media/Fluke9010_front2.bmp"
+#define F9010PANEL_BMP  "media/Fluke9010_front3.bmp"
 
 #define KEYBBEGX 91
 #define KEYBENDX 1831
@@ -202,9 +202,9 @@ Boston, MA 02111-1307 USA
 #define LED_SIZE  wxSize(32, 16)
 #define LED_CORNR 3
 #define LEDSPOS   {wxPoint(1587, 52), wxPoint(1587, 81), wxPoint(1587, 110), wxPoint(1587, 139), wxPoint(1587, 168)}
-// Probe LEDs
-#define PROBE_HI_LED_RECT  wxRect(1792, 685, 47, 22)
-#define PROBE_LO_LED_RECT  wxRect(1742, 685, 47, 22)
+// Probe board warning
+#define PROBEBOARD_WARN_ICON  "media/warnicon_100x100.bmp"
+#define PROBEBOARD_WARN_POS   wxPoint(1762, 665)
 
 // Display
 #define DISPLAY_RECT    wxRect(76, 50, 1290, 110)

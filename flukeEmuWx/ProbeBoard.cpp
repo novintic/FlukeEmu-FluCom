@@ -35,6 +35,9 @@ ProbeBoard::ProbeBoard() : wxThread(wxTHREAD_JOINABLE)
     m_exit  = false;
     m_execIntUs = 1000; // run once per ms
     hSPIDev = 0;
+    m_commCnt = 0;
+    m_commErrors = 0;
+    m_probeBoardUp = true;  // Assume board is there
     // init SPI messages
     memset(&m_outMsg, 0, sizeof(PROBE_SPIOUT_REGS_t));
     m_outMsg.header  = 0x5A;   // #define SPI_INMSG_HEAD      0xA5
@@ -95,6 +98,16 @@ wxThread::ExitCode ProbeBoard::Entry()
         {
             lastT = enT;
             //dispStats();
+
+            // board detection
+            bool lastState = m_probeBoardUp;
+            if (m_commErrors < 10)
+                m_probeBoardUp = true; // assume board ok
+            else
+                m_probeBoardUp = false;
+            if(lastState != m_probeBoardUp)
+                wxLogDebug("Probeboard %s\n", m_probeBoardUp ? "up":"down");
+            m_commErrors = 0;
         }
 
         int slt = (m_execIntUs - tdiff) >= 0 ? m_execIntUs - tdiff : 0;
@@ -136,8 +149,19 @@ void ProbeBoard::init(void)
     digitalWrite(GPIO_SPI_CS, HIGH);
 #endif // WIRINGPI
 
-	// open ports
+    // Test comm with board
+    m_commErrors = 0;
+    probeBoardComm();
+    if (m_commErrors > 0)
+        m_probeBoardUp = false;
+    else
+        m_probeBoardUp = true;
+    wxLogDebug("Probeboard detected: %s\n", m_probeBoardUp ? "YES":"NO");
+}
 
+bool ProbeBoard::probeBoardDetected(void)
+{
+    return m_probeBoardUp;
 }
 
 void ProbeBoard::regPodProbe(emuPodProbe *pPodProbe)
@@ -202,6 +226,7 @@ void ProbeBoard::setData(uint8_t *pBuf, uint32_t maxSize)
     // Copy message
     memcpy(&m_outMsg, pBuf, sizeof(PROBE_SPIIN_REGS_t));
     //wxLogDebug("SPI RX %02x %02x %02x %02x %02x %02x %02x\n",bufRx[0],bufRx[1],bufRx[2],bufRx[3],bufRx[4],bufRx[5],bufRx[6]);
+    m_commCnt++;
     // check framing
     if((m_outMsg.header == SPI_OUTMSG_HEAD) && (m_outMsg.trailer == SPI_OUTMSG_TAIL))
     {
@@ -221,6 +246,8 @@ void ProbeBoard::setData(uint8_t *pBuf, uint32_t maxSize)
             m_pEvSigGen->setSignature(m_outMsg.signature);
         }
     }
+    else
+        m_commErrors++;
 }
 
 // Send new data and receive new data

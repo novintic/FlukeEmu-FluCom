@@ -38,8 +38,11 @@ flukeEmuHw::flukeEmuHw() : wxThread(wxTHREAD_JOINABLE)
     m_runEmu    = false;
     m_resetEmu  = true;
     m_exitEmu   = false;
-    m_execIntUs = 2000;
+    m_execIntUs = 2000;  // Simulation execution intervall
+    // Cycles per intervall based on original speed
     m_emuCycles = (int)(((int64_t)3250000*(int64_t)m_execIntUs)/1000000);
+    // User speed factor, default 2.0
+    m_emuCycles = (int)((float)m_emuCycles*2.0f);
 
     m_totEmuTime = 0;
     m_cntEmuRuns = 0;
@@ -124,6 +127,13 @@ void flukeEmuHw::execCtrl(int cmd)
     else if(cmd == EMU_EXIT)
         m_exitEmu = true;
 }
+
+void flukeEmuHw::setUserSpeedFactor(double speedFactor)
+{
+    m_emuCycles = (int)(((int64_t)3250000*(int64_t)m_execIntUs)/1000000);
+    // User speed factor
+    m_emuCycles = (int)((double)m_emuCycles*speedFactor);
+    wxLogDebug("EMU: int %dus cycPerInt %d userFactor %.2f",m_execIntUs, m_emuCycles, speedFactor );}
 
 // Start, pause, reset, end emulation thread
 void flukeEmuHw::dispStats(void)

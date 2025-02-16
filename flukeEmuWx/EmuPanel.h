@@ -28,7 +28,7 @@ Boston, MA 02111-1307 USA
 class EmuPanel: public wxWindow
 {
     public:
-        EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size);
+        EmuPanel(wxWindow *parent, wxWindowID id, const wxPoint &pos, const wxSize &size, double emuSpeedFactor);
         virtual ~EmuPanel();
 
         void OnPaint( wxPaintEvent &event );
@@ -111,7 +111,7 @@ class EmuPanel: public wxWindow
     wxRect      m_NativeKeyRectEmuSettings;
 
     // Optimized panel update
-    bool        m_updBgnd = false;
+    //bool        m_updBgnd = false;
     float       m_updMsMin = 1000000.0f;
     float       m_updMsMax = 0.0f;
     float       m_updMsSum = 0.0f;
@@ -145,6 +145,13 @@ class EmuPanel: public wxWindow
     int         m_LEDState;
     wxPoint     m_LEDPos[LEDS_NUM] = LEDSPOS;
     int         m_LEDMap[LEDS_NUM] = LED_MAP;
+    // Probe board status
+    bool        m_probeBoardDetected = false;
+    wxImage     m_warnIconImage;
+    wxBitmap*   m_warnIconBitmap;
+    wxSize      m_warnIconSize;
+    wxPoint     m_warnIconPos;
+    wxPoint     m_NativeWarnIconPos;
     // Probe LEDS
     bool        m_ProbeLEDHiState;
     bool        m_ProbeLEDLoState;

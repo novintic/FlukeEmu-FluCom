@@ -25,15 +25,17 @@ class FlukeEmuWxApp : public wxApp
         virtual bool OnInit();
         virtual void OnInitCmdLine(wxCmdLineParser& parser);
         virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
-        
+
     private:
         bool fullscreen;
+        double userEmuSpeedFactor = 1.0;
 
 };
 
 static const wxCmdLineEntryDesc g_cmdLineDesc [] =
 {
     { wxCMD_LINE_SWITCH, "f", "fullscreen", "start fullscreen" },
+    { wxCMD_LINE_OPTION, "s", "", "emulation speed factor (default 1.0)", wxCMD_LINE_VAL_DOUBLE },
     { wxCMD_LINE_NONE }
 };
 

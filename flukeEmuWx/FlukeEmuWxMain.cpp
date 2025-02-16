@@ -51,11 +51,12 @@ wininet
 #include "EmuPanel.h"
 
 #define VER_STRING  "0.96b"
+#define DATE_STRING "Jan 2025"
 
 //helper functions
 wxString flukeEmuWxBuildinfo(void)
 {
-    return wxString("FlukeEmuWx " VER_STRING  " May 2022\n\nBy Clemens / (Novintic)");
+    return wxString("FlukeEmuWx " VER_STRING " " DATE_STRING "\n\nBy Clemens / (Novintic)");
 }
 
 enum wxbuildinfoformat { short_f, long_f };
@@ -100,7 +101,7 @@ BEGIN_EVENT_TABLE(FlukeEmuWxFrame, wxFrame)
     EVT_MENU(idMenuSoundKeys, FlukeEmuWxFrame::OnMnSndKeys)
 END_EVENT_TABLE()
 
-FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title, bool fullscreen)
+FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title, bool fullscreen, double emuspeedFactor)
     : wxFrame(frame, -1, title), m_fullScreen(fullscreen)
 {
     // create a menu bar
@@ -163,7 +164,8 @@ FlukeEmuWxFrame::FlukeEmuWxFrame(wxFrame *frame, const wxString& title, bool ful
     SetStatusText(_("Serial port: ") + "<none>", 1);
     SetStatusText( "FlukeEmuWx " VER_STRING " using " + wxbuildinfo(short_f), 2);
 
-    m_Emu = new EmuPanel( this, wxID_ANY, wxPoint(0,0), wxSize(10,10));
+    // emuspeedFactor
+    m_Emu = new EmuPanel( this, wxID_ANY, wxPoint(0,0), wxSize(10,10), emuspeedFactor);
     m_Emu->Bind(wxEVT_LEFT_DOWN, &FlukeEmuWxFrame::OnMouseEvent, this);
 
     Fit();

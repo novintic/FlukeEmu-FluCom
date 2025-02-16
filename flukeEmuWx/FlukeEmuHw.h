@@ -55,6 +55,7 @@ class flukeEmuHw : public wxThread
     void initHw(void);
     void resetHw(void);
     int runHw(int nCycles);
+    void setUserSpeedFactor(double speedFactor);
 
     void writeIO(uint16_t addr, uint8_t val);
     uint8_t readIO(uint16_t addr);
