@@ -50,8 +50,8 @@ wininet
 #include "FlukeEmuWxMain.h"
 #include "EmuPanel.h"
 
-#define VER_STRING  "0.96b"
-#define DATE_STRING "Jan 2025"
+#define VER_STRING  "0.97b"
+#define DATE_STRING "Feb 2025"
 
 //helper functions
 wxString flukeEmuWxBuildinfo(void)
